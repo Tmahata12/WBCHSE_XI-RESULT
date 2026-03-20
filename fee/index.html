@@ -287,12 +287,13 @@ textarea{resize:vertical;}
           <!-- Searchable student name with dropdown -->
           <div class="fg full" style="position:relative;">
             <label>Student Name <span class="req">*</span></label>
-            <input type="text" id="f_name" placeholder="Type name to search or enter manually…" autocomplete="off"
+            <input type="text" id="f_name" placeholder="Type name to search or enter manually…" autocomplete="off" onblur="checkDuplicate()"
               oninput="stuDropFilter()" onkeydown="stuDropKey(event)" onfocus="stuDropFilter()"/>
             <div id="stuDropList" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--gold);border-top:none;border-radius:0 0 5px 5px;max-height:200px;overflow-y:auto;z-index:300;box-shadow:0 6px 18px rgba(0,0,0,.12);"></div>
           </div>
 
-          <div class="fg"><label>Student ID <span class="req">*</span></label><input type="text" id="f_id" placeholder="e.g. 1250785"/></div>
+          <div class="fg"><label>Student ID <span class="req">*</span></label><input type="text" id="f_id" placeholder="e.g. 1250785" onblur="checkDuplicate()"/></div>
+          <div id="dupWarn" style="display:none;background:#fff3cd;border:1px solid #f0a500;border-radius:4px;padding:6px 10px;font-size:.78rem;color:#856404;margin-top:4px"></div>
           <div class="fg"><label>Session <span class="req">*</span></label><input type="text" id="f_session"/></div>
           <div class="fg"><label>Class <span class="req">*</span></label><select id="f_class"><option value="">Select</option></select></div>
           <div class="fg"><label>Section</label><select id="f_section"><option value="">(None)</option></select></div>
@@ -468,6 +469,40 @@ textarea{resize:vertical;}
   </div>
 
   <div id="rptEmpty" class="empty-st" style="display:none;">📄 No receipts found for selected filters.</div>
+
+  <!-- ── DEFAULTER LIST ── -->
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center">
+      <span>⚠️ Class-wise Fee Defaulter List</span>
+      <div style="display:flex;gap:8px">
+        <select id="defClass" onchange="renderDefaulters()" style="padding:5px 10px;border:1px solid #ddd;border-radius:4px;font-size:.8rem">
+          <option value="">All Classes</option>
+        </select>
+        <select id="defSession" onchange="renderDefaulters()" style="padding:5px 10px;border:1px solid #ddd;border-radius:4px;font-size:.8rem">
+          <option value="">All Sessions</option>
+        </select>
+        <button class="btn-secondary" onclick="printDefaulters()" style="padding:5px 12px;font-size:.8rem">🖨 Print</button>
+      </div>
+    </div>
+    <div id="defaulterBody" style="padding:12px"></div>
+  </div>
+
+  <!-- ── COLLECTION SUMMARY ── -->
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head" style="display:flex;justify-content:space-between;align-items:center">
+      <span>📅 Collection Summary</span>
+      <div style="display:flex;gap:8px">
+        <select id="summaryType" onchange="renderCollectionSummary()" style="padding:5px 10px;border:1px solid #ddd;border-radius:4px;font-size:.8rem">
+          <option value="day">Day-wise</option>
+          <option value="month">Month-wise</option>
+          <option value="year">Year-wise</option>
+        </select>
+        <button class="btn-secondary" onclick="printCollectionSummary()" style="padding:5px 12px;font-size:.8rem">🖨 Print</button>
+      </div>
+    </div>
+    <div id="collectionSummaryBody" style="padding:12px"></div>
+  </div>
+
 </div>
 </div>
 
@@ -825,22 +860,31 @@ async function syncFromCloud(){
     const res=await fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{signal:AbortSignal.timeout(15000)});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const json=await res.json();
-    if(json.ok&&json.data){
-      if(json.data.S) S=json.data.S;
-      if(json.data.R) R=json.data.R;
-      localStorage.setItem('rhs_S',JSON.stringify(S));
-      localStorage.setItem('rhs_R',JSON.stringify(R));
+    if(json.ok && json.data){
+      // Backend stores {S, R} inside payload
+      const d=json.data;
+      if(d.S){ S=d.S; localStorage.setItem('rhs_S',JSON.stringify(S)); }
+      if(d.R){ R=d.R; localStorage.setItem('rhs_R',JSON.stringify(R)); }
+      counter=S.counter||0;
       showFeeSync('☁ Synced','#27ae60');
-      try{ populateDropdowns(); updateStats('s_'); renderRecentTable(); }catch(e){}
+      try{
+        populateDropdowns();
+        updateStats('s_');
+        renderRecentTable();
+        loadSettingsUI();
+        document.getElementById('hdrName').textContent=S.schoolName||'RAMNAGAR HIGH SCHOOL';
+      }catch(e){ console.warn('UI refresh error:',e); }
     } else {
-      showFeeSync('☁ Connected','#27ae60');
+      showFeeSync('☁ Online','#27ae60');
     }
   }catch(e){
+    console.warn('Sync error:',e);
     showFeeSync('📴 Offline — retrying…','#e74c3c');
     setTimeout(()=>syncFromCloud(),30000);
   }
 }
 function pushToCloud(){
+  S.counter=counter; // sync counter
   showFeeSync('⟳ Saving…','#f0a500');
   fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{
     method:'POST',
@@ -971,6 +1015,7 @@ function showPage(p, btn) {
   document.querySelectorAll('.hdr-btn').forEach(b=>b.classList.remove('active-tab'));
   btn.classList.add('active-tab');
   if(p==='records'){populateSrchCls();renderRecTable();updateStats('r_');}
+  if(p==='report'){renderDefaulters();renderCollectionSummary();}
   if(p==='report'){populateRptSession();generateReport();}
   if(p==='students'){populateStuFilters();renderStudents();}
   if(p==='settings'){loadSettingsUI();}
@@ -2008,6 +2053,206 @@ function populateRptSession(){
   sessions.forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;el.appendChild(o);});
   el.value=cur;
 }
+// ═══ DEFAULTER LIST ═══
+function renderDefaulters(){
+  const cls=document.getElementById('defClass')?.value||'';
+  const sess=document.getElementById('defSession')?.value||'';
+
+  // Build student-wise fee status from receipts
+  const studentMap={};
+  R.forEach(r=>{
+    if(cls&&r.admClass&&!r.admClass.startsWith(cls)) return;
+    if(sess&&r.session!==sess) return;
+    const key=r.studentId||r.studentName;
+    if(!studentMap[key]){
+      studentMap[key]={
+        name:r.studentName,id:r.studentId||'—',
+        cls:r.admClass||'—',session:r.session||'—',
+        totalAmt:0,paidAmt:0,receipts:[]
+      };
+    }
+    studentMap[key].totalAmt+=(r.totalAmt||0);
+    studentMap[key].paidAmt+=(r.paidAmt||0);
+    studentMap[key].receipts.push(r.receiptNo);
+  });
+
+  const defaulters=Object.values(studentMap)
+    .filter(s=>s.totalAmt>s.paidAmt)
+    .sort((a,b)=>(b.totalAmt-b.paidAmt)-(a.totalAmt-a.paidAmt));
+
+  const el=document.getElementById('defaulterBody');
+  if(!defaulters.length){
+    el.innerHTML='<div style="text-align:center;padding:20px;color:var(--success)">✅ No defaulters found!</div>';
+    return;
+  }
+
+  const totalPending=defaulters.reduce((s,d)=>s+d.totalAmt-d.paidAmt,0);
+  let html=`<div style="margin-bottom:10px;padding:8px 12px;background:#fff3e0;border:1px solid #f0a500;border-radius:6px;font-size:.82rem">
+    <strong>${defaulters.length}</strong> defaulters | Total Pending: <strong>₹${totalPending.toLocaleString('en-IN')}</strong>
+  </div>
+  <div style="overflow-x:auto"><table class="rec-table" style="width:100%">
+  <thead><tr>
+    <th>#</th><th>Student Name</th><th>ID</th><th>Class</th>
+    <th>Total (₹)</th><th>Paid (₹)</th>
+    <th style="color:#c0392b">Pending (₹)</th><th>Receipts</th>
+  </tr></thead><tbody>`;
+
+  defaulters.forEach((d,i)=>{
+    const pending=d.totalAmt-d.paidAmt;
+    const pct=d.totalAmt?Math.round(d.paidAmt/d.totalAmt*100):0;
+    html+=`<tr style="${pending>0?'background:#fff8f8':''}">
+      <td>${i+1}</td>
+      <td style="font-weight:700">${d.name}</td>
+      <td style="font-family:monospace;font-size:.78rem">${d.id}</td>
+      <td>${d.cls}</td>
+      <td style="text-align:right">₹${d.totalAmt.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;color:var(--success)">₹${d.paidAmt.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;font-weight:700;color:#c0392b">₹${pending.toLocaleString('en-IN')}</td>
+      <td style="font-size:.75rem;color:var(--muted)">${d.receipts.length} receipt(s)</td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+
+  // Populate class filter
+  const classes=[...new Set(R.map(r=>r.admClass).filter(Boolean))].sort();
+  const defCls=document.getElementById('defClass');
+  const defSess=document.getElementById('defSession');
+  if(defCls&&defCls.options.length<2){
+    classes.forEach(c=>{const o=new Option(c,c);defCls.add(o);});
+  }
+  const sessions=[...new Set(R.map(r=>r.session).filter(Boolean))].sort();
+  if(defSess&&defSess.options.length<2){
+    sessions.forEach(s=>{const o=new Option(s,s);defSess.add(o);});
+  }
+}
+
+function printDefaulters(){
+  renderDefaulters();
+  const html=document.getElementById('defaulterBody').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fee Defaulter List</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:12mm;font-size:11px}
+  h2{text-align:center;font-size:15px;margin-bottom:4px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:5px 7px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:10mm}</style></head><body>
+  <h2>${S.schoolName||'Ramnagar High School'}</h2>
+  <h3>Fee Defaulter List — ${S.session||''}</h3>
+  ${html}
+  <div style="margin-top:20px;display:flex;justify-content:space-between;font-size:10px">
+    <div>Date: ${new Date().toLocaleDateString('en-IN')}</div>
+    <div style="text-align:center">Bursar / Fee Controller</div>
+  </div>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ COLLECTION SUMMARY ═══
+function renderCollectionSummary(){
+  const type=document.getElementById('summaryType')?.value||'month';
+  const el=document.getElementById('collectionSummaryBody');
+
+  const groups={};
+  R.forEach(r=>{
+    if(!r.date) return;
+    const d=new Date(r.date);
+    let key;
+    if(type==='day') key=r.date;
+    else if(type==='month') key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    else key=String(d.getFullYear());
+
+    if(!groups[key]) groups[key]={receipts:0,students:new Set(),total:0,paid:0,payModes:{}};
+    groups[key].receipts++;
+    groups[key].students.add(r.studentId||r.studentName);
+    groups[key].total+=(r.totalAmt||0);
+    groups[key].paid+=(r.paidAmt||0);
+    const pm=r.payMode||'CASH';
+    groups[key].payModes[pm]=(groups[key].payModes[pm]||0)+(r.paidAmt||0);
+  });
+
+  const keys=Object.keys(groups).sort().reverse();
+  if(!keys.length){el.innerHTML='<div style="text-align:center;padding:20px;color:#888">No data found.</div>';return;}
+
+  const grandTotal=keys.reduce((s,k)=>s+groups[k].paid,0);
+  let html=`<div style="margin-bottom:10px;padding:8px 12px;background:#f0fff4;border:1px solid #27ae60;border-radius:6px;font-size:.82rem">
+    Grand Total Collected: <strong>₹${grandTotal.toLocaleString('en-IN')}</strong> | ${keys.length} ${type}(s)
+  </div>
+  <div style="overflow-x:auto"><table class="rec-table" style="width:100%">
+  <thead><tr>
+    <th>${type==='day'?'Date':type==='month'?'Month':'Year'}</th>
+    <th>Receipts</th><th>Students</th>
+    <th>Total Billed (₹)</th><th>Collected (₹)</th><th>Pending (₹)</th>
+    <th>Cash</th><th>Online</th><th>Cheque</th>
+  </tr></thead><tbody>`;
+
+  keys.forEach(k=>{
+    const g=groups[k];
+    const pending=g.total-g.paid;
+    const label=type==='month'
+      ?new Date(k+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'})
+      :k;
+    html+=`<tr>
+      <td style="font-weight:700">${label}</td>
+      <td style="text-align:center">${g.receipts}</td>
+      <td style="text-align:center">${g.students.size}</td>
+      <td style="text-align:right">₹${g.total.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;color:var(--success);font-weight:700">₹${g.paid.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;color:${pending>0?'#c0392b':'#888'}">₹${pending.toLocaleString('en-IN')}</td>
+      <td style="text-align:right;font-size:.78rem">₹${(g.payModes['CASH']||0).toLocaleString('en-IN')}</td>
+      <td style="text-align:right;font-size:.78rem">₹${(g.payModes['ONLINE']||0).toLocaleString('en-IN')}</td>
+      <td style="text-align:right;font-size:.78rem">₹${(g.payModes['CHEQUE']||0).toLocaleString('en-IN')}</td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
+function printCollectionSummary(){
+  renderCollectionSummary();
+  const type=document.getElementById('summaryType')?.value||'month';
+  const html=document.getElementById('collectionSummaryBody').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Collection Summary</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:12mm;font-size:11px}
+  h2{text-align:center;font-size:15px;margin-bottom:4px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:5px 7px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:10mm}</style></head><body>
+  <h2>${S.schoolName||'Ramnagar High School'}</h2>
+  <h3>${type.charAt(0).toUpperCase()+type.slice(1)}-wise Collection Summary</h3>
+  ${html}
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ DUPLICATE RECEIPT PREVENTION ═══
+function checkDuplicate(){
+  const name=(document.getElementById('f_name')?.value||'').trim();
+  const id=(document.getElementById('f_id')?.value||'').trim();
+  const sess=(document.getElementById('f_session')?.value||'').trim();
+  if(!name&&!id) return;
+
+  const existing=R.filter(r=>{
+    const nameMatch=name&&r.studentName?.toLowerCase()===name.toLowerCase();
+    const idMatch=id&&r.studentId===id;
+    const sessMatch=!sess||r.session===sess;
+    return (nameMatch||idMatch)&&sessMatch;
+  });
+
+  const warn=document.getElementById('dupWarn');
+  if(!warn) return;
+  if(existing.length){
+    warn.style.display='block';
+    warn.innerHTML=`⚠️ <strong>Existing receipt(s) found</strong> for this student in ${sess||'this session'}: 
+      ${existing.map(r=>`<span style="font-family:monospace">${r.receiptNo}</span> (₹${r.paidAmt})`).join(', ')}
+      &nbsp;<button onclick="document.getElementById('dupWarn').style.display='none'" 
+        style="padding:1px 8px;border:1px solid #c0392b;background:transparent;border-radius:3px;cursor:pointer;font-size:.75rem">Dismiss</button>`;
+  } else {
+    warn.style.display='none';
+  }
+}
+
 function generateReport(){
   const from=document.getElementById('rpt_from').value;
   const to=document.getElementById('rpt_to').value;
