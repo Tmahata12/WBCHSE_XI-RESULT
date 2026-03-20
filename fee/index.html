@@ -822,16 +822,23 @@ function showFeeSync(msg,color){
 async function syncFromCloud(){
   showFeeSync('⟳ Syncing…','#f0a500');
   try{
-    const res=await fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{signal:AbortSignal.timeout(8000)});
+    const res=await fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{signal:AbortSignal.timeout(15000)});
+    if(!res.ok) throw new Error('HTTP '+res.status);
     const json=await res.json();
     if(json.ok&&json.data){
-      S=json.data.S||S;
-      R=json.data.R||R;
+      if(json.data.S) S=json.data.S;
+      if(json.data.R) R=json.data.R;
       localStorage.setItem('rhs_S',JSON.stringify(S));
-      localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+      localStorage.setItem('rhs_R',JSON.stringify(R));
       showFeeSync('☁ Synced','#27ae60');
-    } else { showFeeSync('📴 Offline','#888'); }
-  }catch(e){ showFeeSync('📴 Offline','#888'); }
+      try{ populateDropdowns(); updateStats('s_'); renderRecentTable(); }catch(e){}
+    } else {
+      showFeeSync('☁ Connected','#27ae60');
+    }
+  }catch(e){
+    showFeeSync('📴 Offline — retrying…','#e74c3c');
+    setTimeout(()=>syncFromCloud(),30000);
+  }
 }
 function pushToCloud(){
   showFeeSync('⟳ Saving…','#f0a500');
@@ -872,6 +879,7 @@ function doLogin(){
     return;
   }
   currentUser=found;
+  localStorage.setItem('rhs_loggedIn', JSON.stringify({username:found.username,name:found.name,role:found.role}));
   document.getElementById('loginErr').textContent='';
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('hdrUserLabel').textContent='👤 '+found.name;
@@ -884,13 +892,13 @@ function doLogin(){
   showToast('👋 Welcome, '+found.name+'!');
 }
 function doLogout(){
-  if(!confirm('Logout করবেন?'))return;
+  if(!confirm('Logout?'))return;
   currentUser=null;
+  localStorage.removeItem('rhs_loggedIn');
   document.getElementById('loginUser').value='';
   document.getElementById('loginPass').value='';
   document.getElementById('loginErr').textContent='';
   document.getElementById('loginScreen').style.display='flex';
-  // Re-show all nav buttons
   document.querySelectorAll('.hdr-btn').forEach(b=>b.style.display='');
 }
 function togglePwd(){
@@ -2429,9 +2437,35 @@ function showToast(msg,warn=false){
     if(xlStudents.length) renderXlList();
   }).catch(()=>{});
 
-  // Show login screen (hide main app content)
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('loginUser').focus();
+  // Auto-login if session exists
+  const savedLogin=localStorage.getItem('rhs_loggedIn');
+  if(savedLogin){
+    try{
+      const saved=JSON.parse(savedLogin);
+      const users=getUsers();
+      const found=users.find(x=>x.username===saved.username);
+      if(found){
+        currentUser=found;
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('hdrUserLabel').textContent='👤 '+found.name;
+        if(found.role==='operator'){
+          document.querySelectorAll('.hdr-btn').forEach(b=>{
+            if(b.textContent.includes('Settings'))b.style.display='none';
+          });
+        }
+      } else {
+        localStorage.removeItem('rhs_loggedIn');
+        document.getElementById('loginScreen').style.display='flex';
+        document.getElementById('loginUser').focus();
+      }
+    }catch(e){
+      document.getElementById('loginScreen').style.display='flex';
+      document.getElementById('loginUser').focus();
+    }
+  } else {
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('loginUser').focus();
+  }
 })();
 </script>
 </body>
