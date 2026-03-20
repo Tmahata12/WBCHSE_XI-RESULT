@@ -191,6 +191,10 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
 .mk.ok{border-color:rgba(39,174,96,.4);background:rgba(39,174,96,.07)}
 .mk.bad{border-color:rgba(192,57,43,.5);background:rgba(192,57,43,.08)}
 .mk.empty{border-color:var(--border)}
+.mk.empty::placeholder{color:rgba(200,80,80,.5);font-size:10px}
+.mk.ok::placeholder,.mk.bad::placeholder,.mk.absent::placeholder{color:transparent}
+.mk.crossed{border-color:rgba(180,60,60,.3)!important}
+.mk.crossed::placeholder{color:rgba(180,60,60,.55)!important;font-size:11px!important;font-weight:700}
 .mk.absent{border-color:#E67E22!important;background:rgba(230,126,34,.18)!important;color:#E67E22!important;font-weight:700!important}
 
 /* sub-header color coding */
@@ -352,7 +356,25 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
   }
 }
 
-/* ── UPLOAD ZONE ── */
+.rpt-tab{display:block}
+.rpt-tab.hidden{display:none}
+
+/* ═══ COMPARTMENTAL ═══ */
+.comp-row-warn{background:rgba(230,126,34,.08)!important}
+.comp-row-fail{background:rgba(231,76,60,.08)!important}
+
+/* ═══ GAZETTE ═══ */
+.gaz-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.gaz-tbl th{background:var(--bg3);padding:6px 8px;border:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.gaz-tbl td{padding:5px 8px;border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px}
+.gaz-pass{color:var(--green3);font-weight:700}
+.gaz-fail{color:var(--red3);font-weight:700}
+
+/* ═══ CERTIFICATE ═══ */
+.cert-preview{background:#fff;color:#000;padding:20mm;width:190mm;margin:0 auto;
+  border:3px double #000;font-family:'Times New Roman',serif;position:relative}
+
+/* ── UPLOAD ZONE ── *//* ── UPLOAD ZONE ── */
 .upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;
   cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
 .upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(212,160,23,.06)}
@@ -463,6 +485,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
   <button class="nb" onclick="goSec('results',this)">📋 Results</button>
   <button class="nb" onclick="goSec('merit',this)">🏆 Merit List</button>
   <button class="nb" onclick="goSec('toppers',this);renderToppers()">🎯 Toppers</button>
+  <button class="nb" onclick="goSec('reports',this);renderReports()">📊 Reports</button>
   <button class="nb" onclick="goSec('marksheet',this)">📄 Marksheet</button>
   <button class="nb" onclick="goSec('settings',this)">⚙️ Settings</button>
   <div style="margin-left:auto;display:flex;align-items:center;padding:0 10px">
@@ -659,6 +682,10 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
       <button class="btn btn-ghost" onclick="openBulkPaste()" style="border-color:var(--gold);color:var(--gold2)">✏️ Bulk Edit</button>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
         <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace" id="lastSavedLbl">Auto-saved per cell</span>
+        <span style="font-size:11px;color:var(--text3)">
+          &nbsp;|&nbsp; 🟢 Pass &nbsp;🔴 Fail &nbsp;🟠 AB=Absent
+          &nbsp;<span style="display:inline-block;width:16px;height:12px;vertical-align:middle;background:repeating-linear-gradient(135deg,rgba(150,150,150,.15) 0px,rgba(150,150,150,.15) 3px,transparent 3px,transparent 9px);border:1px solid var(--border2);border-radius:2px"></span>&nbsp;= Subject নেই
+        </span>
         <button class="btn btn-blue" onclick="exportFullExcel()" title="Backup all data to Excel">📤 Excel Backup</button>
         <button class="btn btn-ghost" onclick="document.getElementById('xlsImp').click()" title="Restore from Excel file">📥 Excel Restore</button>
         <input type="file" id="xlsImp" accept=".xlsx,.xls" style="display:none" onchange="importFullExcel(event)"/>
@@ -747,6 +774,132 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
     <div class="card-title"><span class="ico">🎯</span>Subject Toppers <span class="card-sub">Highest scorer per subject</span></div>
     <div id="subTopperTable"></div>
   </div>
+</div>
+
+<!-- ═══════ REPORTS ═══════ -->
+<div class="sec" id="sec-reports">
+
+  <!-- Tab bar -->
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="btn btn-gold btn-sm" onclick="showRptTab('compartmental',this)" id="rbt-compartmental">⚠️ Compartmental</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('gazette',this)" id="rbt-gazette">📰 Gazette</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('absent',this)" id="rbt-absent">🔴 Absent Report</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('failed',this)" id="rbt-failed">📉 Fail Analysis</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('progress',this)" id="rbt-progress">📈 Progress Card</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('summary',this)" id="rbt-summary">🏫 Summary Cert.</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('passcert',this)" id="rbt-passcert">🎓 Pass Certificate</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('notice',this)" id="rbt-notice">📨 Notice Letter</button>
+  </div>
+
+  <!-- Compartmental / Grace -->
+  <div id="rpt-compartmental" class="rpt-tab">
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title"><span class="ico">⚠️</span>Compartmental & Grace Marks</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="compStream" onchange="renderCompartmental()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="">All Streams</option>
+          <option value="Science">Science</option>
+          <option value="Arts">Arts</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="compGrace" onchange="renderCompartmental()" style="width:14px;height:14px">
+          Show grace marks effect
+        </label>
+        <button class="btn btn-ghost btn-sm" onclick="printCompartmental()">🖨 Print List</button>
+      </div>
+      <div id="compTable"></div>
+    </div>
+  </div>
+
+  <!-- Gazette -->
+  <div id="rpt-gazette" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📰</span>Official Result Gazette</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <select id="gazStream" onchange="renderGazette()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="">All Streams</option>
+          <option value="Science">Science</option>
+          <option value="Arts">Arts</option>
+        </select>
+        <button class="btn btn-gold btn-sm" onclick="printGazette()">🖨 Print Gazette</button>
+      </div>
+      <div id="gazetteTable" style="overflow:auto"></div>
+    </div>
+  </div>
+
+  <!-- Absent Report -->
+  <div id="rpt-absent" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">🔴</span>Absent Student Report</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <button class="btn btn-gold btn-sm" onclick="printAbsentReport()">🖨 Print Notice List</button>
+      </div>
+      <div id="absentTable"></div>
+    </div>
+  </div>
+
+  <!-- Fail Analysis -->
+  <div id="rpt-failed" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📉</span>Failed Student Analysis</div>
+      <div id="failTable"></div>
+    </div>
+  </div>
+
+  <!-- Progress Card -->
+  <div id="rpt-progress" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📈</span>Semester Progress Card</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <input id="progRoll" placeholder="Roll / Reg No" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;width:200px"/>
+        <button class="btn btn-gold btn-sm" onclick="renderProgressCard()">📊 Show</button>
+        <button class="btn btn-ghost btn-sm" onclick="printProgressCard()">🖨 Print</button>
+      </div>
+      <div id="progressTable"></div>
+    </div>
+  </div>
+
+  <!-- Summary Certificate -->
+  <div id="rpt-summary" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">🏫</span>Result Summary Certificate</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <button class="btn btn-gold btn-sm" onclick="printSummaryCert()">🖨 Print Certificate</button>
+      </div>
+      <div id="summaryPreview"></div>
+    </div>
+  </div>
+
+  <!-- Pass Certificate -->
+  <div id="rpt-passcert" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">🎓</span>Pass Certificate</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <input id="certRoll" placeholder="Roll / Reg No" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;width:200px"/>
+        <button class="btn btn-gold btn-sm" onclick="printPassCert()">🖨 Print Certificate</button>
+        <button class="btn btn-ghost btn-sm" onclick="printAllPassCerts()">🖨 Print All (Passed)</button>
+      </div>
+      <div id="certPreview"></div>
+    </div>
+  </div>
+
+  <!-- Notice Letter -->
+  <div id="rpt-notice" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📨</span>Result Notification Letter</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <input id="noticeRoll" placeholder="Roll / Reg No" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;width:200px"/>
+        <select id="noticeLang" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="en">English</option>
+          <option value="bn">Bengali</option>
+          <option value="both">Both</option>
+        </select>
+        <button class="btn btn-gold btn-sm" onclick="printNoticeLetter()">🖨 Print Letter</button>
+      </div>
+      <div id="noticePreview"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ═══════ MARKSHEET ═══════ -->
@@ -1452,12 +1605,13 @@ function renderAGA(){
       const stSubs=getStudentSubjects(st.stream, st);
 
       let cells=colDefs.map((cd,ci)=>{
-        // If this subject not in student's subjects, show grey N/A cell
+        // If this subject not in student's subjects, show blocked N/A cell
         const subForCol=S.subjects[cd.gi];
-        if(st.stream==='Arts' && subForCol && subForCol.stream==='Arts' && !stSubs.includes(subForCol)){
+        const subBelongs=stSubs.includes(subForCol);
+        if(!subBelongs){
           const isFirst=ci===0||colDefs[ci-1].gi!==cd.gi;
           const bl=isFirst?'border-left:2px solid var(--border2);':'';
-          return `<td style="${bl}padding:2px 3px;background:rgba(255,255,255,0.02);text-align:center;color:var(--text3);font-size:10px">—</td>`;
+          return `<td style="${bl}padding:0;cursor:not-allowed;background:repeating-linear-gradient(135deg,rgba(100,100,100,.07) 0px,rgba(100,100,100,.07) 3px,transparent 3px,transparent 9px)" title="এই subject এই student-এর নেই"></td>`;
         }
         const m=(st.marks&&st.marks[cd.gi])||{};
         const raw=m[cd.comp];
@@ -1470,8 +1624,8 @@ function renderAGA(){
         const bl=isFirst?'border-left:2px solid var(--border2);':'';
         return `<td style="${bl}padding:2px 3px"><input class="mk ${cls}" type="text" inputmode="numeric" pattern="[0-9ABab]*"
           data-roll="${st.roll}" data-gi="${cd.gi}" data-comp="${cd.comp}" data-max="${cd.max}"
-          value="${val}" onchange="markChanged(this)" oninput="markInput(this)"
-          onkeydown="markNav(event,this)"/></td>`;
+          value="${val}" placeholder="✕" onchange="markChanged(this)" oninput="markInput(this)"
+          onkeydown="markNav(event,this)" onfocus="this.classList.remove('crossed')"/></td>`;
       }).join('');
 
       return `<tr class="${rowCls}" id="aga-row-${st.roll}">
@@ -1604,8 +1758,40 @@ function markNav(e,el){
     e.preventDefault();
     const allInputs=Array.from(document.getElementById('sec-entry').querySelectorAll('input.mk'));
     const idx=allInputs.indexOf(el);
-    if(idx>=0&&idx+1<allInputs.length) allInputs[idx+1].focus();
+    if(idx>=0&&idx+1<allInputs.length){
+      const currRoll=el.dataset.roll;
+      const nextRoll=allInputs[idx+1].dataset.roll;
+      // Moving to next student → show cross on empty cells (visual only)
+      if(nextRoll!==currRoll) showCrossForStudent(currRoll);
+      allInputs[idx+1].focus();
+    }
   }
+  // Up/Down arrow navigation
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    const allInputs=Array.from(document.getElementById('sec-entry').querySelectorAll('input.mk'));
+    const idx=allInputs.indexOf(el);
+    const gi=el.dataset.gi, comp=el.dataset.comp;
+    // Find same gi+comp in next/prev student
+    const sameCol=allInputs.filter(i=>i.dataset.gi===gi&&i.dataset.comp===comp);
+    const ci=sameCol.indexOf(el);
+    const target=e.key==='ArrowDown'?sameCol[ci+1]:sameCol[ci-1];
+    if(target){
+      if(e.key==='ArrowDown') showCrossForStudent(el.dataset.roll);
+      target.focus();
+    }
+  }
+}
+
+function showCrossForStudent(roll){
+  // Visually mark empty cells with ✕ placeholder styling — does NOT set AB
+  // Computationally they remain empty (fail)
+  const inputs=Array.from(document.querySelectorAll(`input.mk[data-roll="${roll}"]`));
+  inputs.forEach(inp=>{
+    if(inp.value===''||inp.value===undefined){
+      inp.classList.add('crossed');
+    }
+  });
 }
 
 function saveAllMarks(){
@@ -2751,6 +2937,626 @@ function showSMSTemplate(roll){
 }
 
 // ═══════════════════════════════════════════════════════
+// REPORTS — Tab switcher
+// ═══════════════════════════════════════════════════════
+function renderReports(){
+  showRptTab('compartmental', document.getElementById('rbt-compartmental'));
+}
+function showRptTab(tab, btn){
+  document.querySelectorAll('.rpt-tab').forEach(t=>t.style.display='none');
+  document.querySelectorAll('[id^="rbt-"]').forEach(b=>{b.className='btn btn-ghost btn-sm';b.onclick=b.onclick;});
+  const el=document.getElementById('rpt-'+tab);
+  if(el) el.style.display='block';
+  if(btn){btn.className='btn btn-gold btn-sm';}
+  // Auto-render
+  if(tab==='compartmental') renderCompartmental();
+  if(tab==='gazette') renderGazette();
+  if(tab==='absent') renderAbsentReport();
+  if(tab==='failed') renderFailAnalysis();
+  if(tab==='summary') renderSummaryCert();
+}
+
+// ═══ COMPARTMENTAL / GRACE ═══
+function renderCompartmental(){
+  const streamF=document.getElementById('compStream')?.value||'';
+  const showGrace=document.getElementById('compGrace')?.checked||false;
+  // WBCHSE rule: max 5 grace marks total across all failed subjects
+  // Grace only applies to written components (S1, S2), NOT practical/project
+  // Absent = no grace possible
+  const GRACE_TOTAL=5;
+
+  const students=S.students.filter(s=>!streamF||s.stream===streamF);
+  const rows=[];
+
+  students.forEach(st=>{
+    if(!hasAllMarks(st)) return;
+    const mySubs=getStudentSubjects(st.stream,st);
+    const subRes=mySubs.map(sub=>{
+      const gi=S.subjects.indexOf(sub);
+      const m=st.marks?st.marks[gi]:{};
+      const r=computeSub(sub,m);
+      return{sub,gi,r,m};
+    });
+
+    const failSubs=subRes.filter(x=>!x.r.passed);
+    if(!failSubs.length) return; // already passed
+
+    // Calculate grace needed per subject
+    let totalGraceNeeded=0;
+    let hasAbsent=false;
+    const graceDetails=failSubs.map(x=>{
+      const m=x.m;
+      const w=x.sub.type==='w40'?40:35;
+      const ppMax=x.sub.hasPrac?30:20;
+      const s1=markVal(m.s1), s2=markVal(m.s2);
+      const pp=x.sub.hasPrac?markVal(m.prac):markVal(m.proj);
+      const absS1=isAbs(m.s1), absS2=isAbs(m.s2);
+      const absPP=x.sub.hasPrac?isAbs(m.prac):isAbs(m.proj);
+
+      if(absS1||absS2||absPP){ hasAbsent=true; return{name:x.sub.name,absent:true,need:0}; }
+
+      let need=0;
+      const parts=[];
+      // S1 short
+      const s1Need=Math.max(0,passThresh(w)-s1);
+      if(s1Need>0){need+=s1Need;parts.push(`Sem I: +${s1Need}`);}
+      // S2 short
+      const s2Need=Math.max(0,passThresh(w)-s2);
+      if(s2Need>0){need+=s2Need;parts.push(`Sem II: +${s2Need}`);}
+      // PP short — grace NOT allowed on practical/project per WBCHSE rule
+      const ppNeed=Math.max(0,(x.sub.hasPrac?passThresh(30):passThresh(20))-pp);
+      if(ppNeed>0){need+=999;parts.push(`${x.sub.hasPrac?'Prac':'Proj'}: +${ppNeed} ⚠️no grace`);}
+
+      totalGraceNeeded+=Math.min(need,999);
+      return{name:x.sub.name,absent:false,need,parts};
+    });
+
+    const canGrace=!hasAbsent && totalGraceNeeded>0 && totalGraceNeeded<=GRACE_TOTAL
+      && !graceDetails.some(g=>g.need>=999);
+    rows.push({st,failSubs,graceDetails,totalGraceNeeded,canGrace,hasAbsent});
+  });
+
+  if(!rows.length){
+    document.getElementById('compTable').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">✅ No failed students found.</div>';
+    return;
+  }
+
+  // Separate: grace possible vs not
+  const graceRows=rows.filter(r=>r.canGrace);
+  const failRows=rows.filter(r=>!r.canGrace);
+
+  let html=`<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+    <div style="background:rgba(39,174,96,.1);border:1px solid var(--green3);border-radius:8px;padding:8px 14px;font-size:12px">
+      <span style="color:var(--green3);font-weight:700">✓ Grace Possible:</span> ${graceRows.length} student(s) — needs ≤${GRACE_TOTAL} marks total (written only)
+    </div>
+    <div style="background:rgba(231,76,60,.1);border:1px solid var(--red3);border-radius:8px;padding:8px 14px;font-size:12px">
+      <span style="color:var(--red3);font-weight:700">✗ Failed:</span> ${failRows.length} student(s) — needs more than ${GRACE_TOTAL} marks or absent/practical fail
+    </div>
+  </div>
+  <table class="rtable" style="width:100%">
+  <thead><tr>
+    <th>Roll</th><th style="text-align:left">Name</th><th>Stream</th>
+    <th>Fails</th>
+    <th style="text-align:left">Grace Required</th>
+    <th>Total Needed</th>
+    ${showGrace?'<th>Status</th>':''}
+  </tr></thead><tbody>`;
+
+  // Grace possible rows first
+  if(graceRows.length){
+    html+=`<tr><td colspan="10" style="background:rgba(39,174,96,.08);padding:6px 10px;font-size:11px;font-weight:700;color:var(--green3)">✓ GRACE POSSIBLE — ${graceRows.length} student(s)</td></tr>`;
+    graceRows.forEach(({st,failSubs,graceDetails,totalGraceNeeded,canGrace})=>{
+      const failList=graceDetails.map(g=>
+        g.absent?`<span style="color:var(--orange2)">${g.name}(AB)</span>`
+        :`<span style="color:var(--red3)">${g.name}</span>`).join(', ');
+      const graceList=graceDetails.map(g=>
+        g.absent?`<span style="font-size:10px;color:var(--orange2)">AB</span>`
+        :g.parts.length?`<span style="font-size:10px;color:var(--green3)">${g.parts.join(', ')}</span>`:'').join('<br>');
+      const statusCell=showGrace?`<td style="text-align:center"><span class="badge b-pass">GRACE PASS</span></td>`:'';
+      html+=`<tr style="background:rgba(39,174,96,.05)">
+        <td style="font-family:'DM Mono',monospace">${st.roll}</td>
+        <td style="font-weight:700">${st.name}</td>
+        <td style="font-size:11px">${st.stream}</td>
+        <td style="text-align:center">${failSubs.length}</td>
+        <td>${graceList}</td>
+        <td style="text-align:center;font-weight:700;color:var(--green3)">+${totalGraceNeeded}</td>
+        ${statusCell}
+      </tr>`;
+    });
+  }
+
+  // Cannot grace rows
+  if(failRows.length){
+    html+=`<tr><td colspan="10" style="background:rgba(231,76,60,.08);padding:6px 10px;font-size:11px;font-weight:700;color:var(--red3)">✗ CANNOT PASS WITH GRACE — ${failRows.length} student(s)</td></tr>`;
+    failRows.forEach(({st,failSubs,graceDetails,totalGraceNeeded,hasAbsent})=>{
+      const failList=graceDetails.map(g=>
+        g.absent?`<span style="color:var(--orange2)">${g.name}(AB)</span>`
+        :`<span style="color:var(--red3)">${g.name}</span>`).join(', ');
+      const reason=hasAbsent?'Absent in exam':'Needs >'+(GRACE_TOTAL)+' grace marks';
+      const statusCell=showGrace?`<td style="text-align:center"><span class="badge b-fail">FAIL</span></td>`:'';
+      html+=`<tr style="background:rgba(231,76,60,.05)">
+        <td style="font-family:'DM Mono',monospace">${st.roll}</td>
+        <td style="font-weight:700">${st.name}</td>
+        <td style="font-size:11px">${st.stream}</td>
+        <td style="text-align:center">${failSubs.length}</td>
+        <td style="font-size:11px;color:var(--text3)">${reason}</td>
+        <td style="text-align:center;color:var(--red3)">${totalGraceNeeded>=999?'—':'+'+totalGraceNeeded}</td>
+        ${statusCell}
+      </tr>`;
+    });
+  }
+
+  html+='</tbody></table>';
+  document.getElementById('compTable').innerHTML=html;
+}
+
+function printCompartmental(){
+  const html=document.getElementById('compTable').innerHTML;
+  const sch=S.school;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Compartmental List</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:15mm}
+  h2{text-align:center;font-size:16px;margin-bottom:4px}h3{text-align:center;font-size:13px;color:#555;margin-bottom:16px;font-weight:400}
+  table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:6px 8px;font-size:11px}
+  th{background:#000;color:#fff}.comp-row-warn{background:#fff3e0}.comp-row-fail{background:#fdecea}
+  @media print{@page{margin:10mm}}</style></head><body>
+  <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
+  <h3>Compartmental Students — ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
+  ${html}
+  <div style="margin-top:30px;display:flex;justify-content:space-between">
+    <div style="text-align:center"><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px;font-size:10px">Class Teacher</div></div>
+    <div style="text-align:center"><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px;font-size:10px">Head of Institution</div><div style="font-size:9px;color:#555">${sch.name||''}</div></div>
+  </div>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ GAZETTE ═══
+function renderGazette(){
+  const streamF=document.getElementById('gazStream')?.value||'';
+  const students=S.students.filter(s=>(!streamF||s.stream===streamF)&&hasAllMarks(s))
+    .sort((a,b)=>a.roll.localeCompare(b.roll));
+  if(!students.length){
+    document.getElementById('gazetteTable').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">No complete marks found.</div>';
+    return;
+  }
+  const streams=[...new Set(students.map(s=>s.stream))].sort();
+  let html='';
+  streams.forEach(stream=>{
+    const group=students.filter(s=>s.stream===stream);
+    const mySubs=S.subjects.filter(sub=>(sub.stream==='Both'||sub.stream===stream)&&group.some(st=>{
+      const gi=S.subjects.indexOf(sub);return hasSubjectMarks(st.marks?st.marks[gi]:{},sub);
+    }));
+    const subHeaders=mySubs.map(sub=>`<th>${sub.name.substring(0,8)}</th>`).join('');
+    let rows=group.map(st=>{
+      const c=computeStudent(st);
+      const subCells=mySubs.map(sub=>{
+        const gi=S.subjects.indexOf(sub);
+        const r=computeSub(sub,st.marks?st.marks[gi]:{});
+        const m=st.marks?st.marks[gi]:{};
+        const hasAbs=isAbs(m.s1)||isAbs(m.s2)||(sub.hasPrac?isAbs(m.prac):isAbs(m.proj));
+        return `<td class="${r.passed?'gaz-pass':'gaz-fail'}" style="text-align:center">${hasAbs?'AB':r.total}</td>`;
+      }).join('');
+      return `<tr>
+        <td>${st.roll}</td>
+        <td>${st.reg||'—'}</td>
+        <td style="text-align:left">${st.name}</td>
+        ${subCells}
+        <td style="text-align:center;font-weight:700">${c.bestTotal}</td>
+        <td style="text-align:center">${c.pct}%</td>
+        <td style="text-align:center"><span class="badge ${c.passed?'b-pass':'b-fail'}">${c.passed?'P':'F'}</span></td>
+      </tr>`;
+    }).join('');
+    html+=`<div style="margin-bottom:16px"><div style="font-size:12px;font-weight:700;color:var(--gold2);padding:8px 0;border-bottom:2px solid var(--gold)">${stream} Stream (${group.length} students)</div>
+    <div style="overflow:auto"><table class="gaz-tbl">
+    <thead><tr><th>Roll</th><th>Reg</th><th style="text-align:left">Name</th>${subHeaders}<th>Best/5</th><th>%</th><th>Result</th></tr></thead>
+    <tbody>${rows}</tbody></table></div></div>`;
+  });
+  document.getElementById('gazetteTable').innerHTML=html;
+}
+
+function printGazette(){
+  renderGazette();
+  const sch=S.school;
+  const content=document.getElementById('gazetteTable').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Result Gazette</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;font-size:11px;padding:10mm}
+  h1{text-align:center;font-size:16px;margin-bottom:2px}h2{text-align:center;font-size:12px;font-weight:400;color:#555;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:4px 6px;font-size:10px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .gaz-pass{color:#155724;font-weight:700}.gaz-fail{color:#721c24;font-weight:700}
+  .badge{padding:1px 5px;font-size:9px;font-weight:700;border:1px solid #000}
+  @page{size:A3 landscape;margin:10mm}
+  </style></head><body>
+  <h1>${sch.name||'Ramnagar High School (H.S.)'}</h1>
+  <h2>Official Result Gazette — ${sch.exam||'Annual Examination'} | ${sch.cls||'Class XI'} | ${sch.year||''}</h2>
+  ${content}
+  <div style="margin-top:20px;display:flex;justify-content:space-between;font-size:10px">
+    <div>Date: ___________</div>
+    <div style="text-align:center">Head of Institution<br>${sch.name||''}</div>
+  </div>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ ABSENT REPORT ═══
+function renderAbsentReport(){
+  const subAbsent={};
+  S.subjects.forEach((sub,gi)=>{subAbsent[gi]={sub,count:0,students:[]};});
+  const absentStudents=[];
+  S.students.forEach(st=>{
+    const mySubs=getStudentSubjects(st.stream,st);
+    const absSubs=[];
+    mySubs.forEach(sub=>{
+      const gi=S.subjects.indexOf(sub);
+      const m=st.marks?st.marks[gi]:{};
+      const hasAbs=isAbs(m.s1)||isAbs(m.s2)||(sub.hasPrac?isAbs(m.prac):isAbs(m.proj));
+      if(hasAbs){subAbsent[gi].count++;subAbsent[gi].students.push(st.name);absSubs.push(sub.name);}
+    });
+    if(absSubs.length) absentStudents.push({st,absSubs});
+  });
+
+  const subRows=Object.values(subAbsent).filter(x=>x.count>0)
+    .sort((a,b)=>b.count-a.count)
+    .map(x=>`<tr><td>${x.sub.name}</td><td style="text-align:center;font-weight:700;color:var(--red3)">${x.count}</td>
+    <td style="font-size:11px;color:var(--text3)">${x.students.slice(0,5).join(', ')}${x.students.length>5?` +${x.students.length-5} more`:''}</td></tr>`).join('');
+
+  const stuRows=absentStudents.map(({st,absSubs})=>`<tr>
+    <td style="font-family:'DM Mono',monospace">${st.roll}</td>
+    <td>${st.name}</td><td>${st.stream}</td>
+    <td style="color:var(--red3);font-size:11px">${absSubs.join(', ')}</td>
+  </tr>`).join('');
+
+  document.getElementById('absentTable').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Subject-wise Absent Count</div>
+      <table class="rtable" style="width:100%;margin-bottom:16px">
+        <thead><tr><th style="text-align:left">Subject</th><th>Absent Count</th><th style="text-align:left">Students</th></tr></thead>
+        <tbody>${subRows||'<tr><td colspan="3" style="text-align:center;color:var(--text3)">No absent records</td></tr>'}</tbody>
+      </table>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px">Student-wise Absent List</div>
+      <table class="rtable" style="width:100%">
+        <thead><tr><th>Roll</th><th style="text-align:left">Name</th><th>Stream</th><th style="text-align:left">Absent In</th></tr></thead>
+        <tbody>${stuRows||'<tr><td colspan="4" style="text-align:center;color:var(--text3)">No absent records</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function printAbsentReport(){
+  renderAbsentReport();
+  const sch=S.school;
+  const html=document.getElementById('absentTable').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Absent Report</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:12mm}
+  h2{text-align:center;font-size:15px;margin-bottom:4px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #000;padding:5px 8px;font-size:11px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:10mm}</style></head><body>
+  <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
+  <h3>Absent Student Report — ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
+  ${html}
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ FAIL ANALYSIS ═══
+function renderFailAnalysis(){
+  const subFail={};const subAbsCount={};const subLowCount={};
+  S.subjects.forEach((sub,gi)=>{subFail[gi]=0;subAbsCount[gi]=0;subLowCount[gi]=0;});
+  S.students.forEach(st=>{
+    if(!hasAllMarks(st)) return;
+    const mySubs=getStudentSubjects(st.stream,st);
+    mySubs.forEach(sub=>{
+      const gi=S.subjects.indexOf(sub);
+      const m=st.marks?st.marks[gi]:{};
+      const r=computeSub(sub,m);
+      if(!r.passed){
+        subFail[gi]++;
+        const hasAbs=isAbs(m.s1)||isAbs(m.s2)||(sub.hasPrac?isAbs(m.prac):isAbs(m.proj));
+        if(hasAbs) subAbsCount[gi]++; else subLowCount[gi]++;
+      }
+    });
+  });
+  const rows=S.subjects.map((sub,gi)=>({sub,gi,fail:subFail[gi],abs:subAbsCount[gi],low:subLowCount[gi]}))
+    .filter(x=>x.fail>0).sort((a,b)=>b.fail-a.fail);
+
+  if(!rows.length){
+    document.getElementById('failTable').innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">No failures found.</div>';
+    return;
+  }
+
+  const maxFail=rows[0].fail;
+  const html=`<table class="rtable" style="width:100%">
+    <thead><tr>
+      <th style="text-align:left">Subject</th>
+      <th>Total Failed</th>
+      <th>Due to Absent</th>
+      <th>Due to Low Marks</th>
+      <th style="text-align:left">Breakdown</th>
+    </tr></thead>
+    <tbody>${rows.map(({sub,fail,abs,low})=>{
+      const pct=Math.round((fail/maxFail)*100);
+      return `<tr>
+        <td style="font-weight:700">${sub.name}</td>
+        <td style="text-align:center;font-weight:700;color:var(--red3)">${fail}</td>
+        <td style="text-align:center;color:var(--orange2)">${abs}</td>
+        <td style="text-align:center;color:var(--red3)">${low}</td>
+        <td><div style="background:var(--bg3);border-radius:4px;height:14px;overflow:hidden">
+          <div style="background:var(--red3);height:100%;width:${pct}%;border-radius:4px;-webkit-print-color-adjust:exact;print-color-adjust:exact"></div>
+        </div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+  document.getElementById('failTable').innerHTML=html;
+}
+
+// ═══ PROGRESS CARD (Sem I vs Sem II) ═══
+function renderProgressCard(){
+  const q=(document.getElementById('progRoll')?.value||'').trim();
+  const st=S.students.find(s=>s.roll===q||s.reg===q);
+  if(!st){notif('Student not found.','err');return;}
+  const mySubs=getStudentSubjects(st.stream,st);
+  const rows=mySubs.map(sub=>{
+    const gi=S.subjects.indexOf(sub);
+    const m=(st.marks&&st.marks[gi])||{};
+    const w=sub.type==='w40'?40:35;
+    const s1=m.s1!=null&&m.s1!==''?(isAbs(m.s1)?'AB':m.s1):null;
+    const s2=m.s2!=null&&m.s2!==''?(isAbs(m.s2)?'AB':m.s2):null;
+    if(s1===null&&s2===null) return '';
+    const diff=(s1!=='AB'&&s2!=='AB'&&s1!==null&&s2!==null)
+      ?parseInt(s2)-parseInt(s1):null;
+    const diffClr=diff===null?'var(--text3)':diff>0?'var(--green3)':diff<0?'var(--red3)':'var(--text3)';
+    const diffTxt=diff===null?'—':diff>0?`+${diff}`:diff<0?`${diff}`:'±0';
+    return `<tr>
+      <td style="font-weight:700">${sub.name}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${s1??'—'}<span style="font-size:9px;color:var(--text3)">/${w}</span></td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${s2??'—'}<span style="font-size:9px;color:var(--text3)">/${w}</span></td>
+      <td style="text-align:center;font-weight:700;color:${diffClr}">${diffTxt}</td>
+    </tr>`;
+  }).filter(Boolean).join('');
+
+  document.getElementById('progressTable').innerHTML=`
+    <div style="margin-bottom:10px;font-size:14px;font-weight:700;color:var(--gold2)">${st.name} — ${st.stream}</div>
+    <table class="rtable" style="width:100%;max-width:500px">
+      <thead><tr><th style="text-align:left">Subject</th><th>Semester I</th><th>Semester II</th><th>Change</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function printProgressCard(){
+  const el=document.getElementById('progressTable');
+  if(!el?.innerHTML||el.innerHTML.trim()==='') {renderProgressCard(); setTimeout(printProgressCard, 300); return;}
+  const sch=S.school;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Progress Card</title>
+  <style>body{font-family:Arial,sans-serif;padding:12mm}h2{font-size:15px;text-align:center}
+  table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:6px 10px;font-size:12px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:10mm}</style></head><body>
+  <h2>${sch.name||''} — Semester Progress Card</h2>
+  ${el.innerHTML}
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ SUMMARY CERTIFICATE ═══
+function renderSummaryCert(){
+  const sch=S.school;
+  const total=S.students.length;
+  const complete=S.students.filter(s=>hasAllMarks(s));
+  const passed=complete.filter(s=>computeStudent(s).passed).length;
+  const failed=complete.length-passed;
+  const pct=complete.length?((passed/complete.length)*100).toFixed(1):'0.0';
+  const sciPass=complete.filter(s=>s.stream==='Science'&&computeStudent(s).passed).length;
+  const sciTotal=complete.filter(s=>s.stream==='Science').length;
+  const artPass=complete.filter(s=>s.stream==='Arts'&&computeStudent(s).passed).length;
+  const artTotal=complete.filter(s=>s.stream==='Arts').length;
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const logo=sch.logo?`<img src="${sch.logo}" style="width:70px;height:70px;border-radius:50%;border:2px solid #000;object-fit:cover">`:'';
+
+  document.getElementById('summaryPreview').innerHTML=`
+  <div style="background:#fff;color:#000;padding:16mm;border:3px double #000;font-family:'Times New Roman',serif;max-width:700px;margin:0 auto;position:relative">
+    <div style="position:absolute;inset:4mm;border:1px solid #000;pointer-events:none"></div>
+    <div style="text-align:center;margin-bottom:12px">
+      ${logo}
+      <div style="font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:1px;margin-top:6px">${sch.name||'Ramnagar High School (H.S.)'}</div>
+      ${sch.address?`<div style="font-size:11px;margin-top:2px">${sch.address}</div>`:''}
+      <div style="font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-top:8px;border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 0">
+        Result Summary Certificate
+      </div>
+    </div>
+    <div style="font-size:12px;margin-bottom:16px;line-height:2">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="width:50%;padding:3px 0"><b>Examination:</b> ${sch.exam||'Annual Examination'}</td>
+            <td><b>Class:</b> ${sch.cls||'Class XI'}</td></tr>
+        <tr><td><b>Academic Year:</b> ${sch.year||''}</td>
+            <td><b>Date:</b> ${today}</td></tr>
+        <tr><td><b>Total Students:</b> ${total}</td>
+            <td><b>Appeared:</b> ${complete.length}</td></tr>
+      </table>
+    </div>
+    <table style="width:100%;border-collapse:collapse;border:1.5px solid #000;margin-bottom:14px;font-size:12px">
+      <thead><tr style="background:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+        <th style="color:#fff;padding:8px;border:1px solid #555">Category</th>
+        <th style="color:#fff;padding:8px;border:1px solid #555;text-align:center">Appeared</th>
+        <th style="color:#fff;padding:8px;border:1px solid #555;text-align:center">Passed</th>
+        <th style="color:#fff;padding:8px;border:1px solid #555;text-align:center">Failed</th>
+        <th style="color:#fff;padding:8px;border:1px solid #555;text-align:center">Pass %</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:7px 8px;border:1px solid #ccc;font-weight:700">Overall</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc">${complete.length}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;font-weight:700;color:green">${passed}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;color:red">${failed}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;font-weight:700">${pct}%</td></tr>
+        ${sciTotal?`<tr><td style="padding:7px 8px;border:1px solid #ccc">Science</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc">${sciTotal}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;color:green">${sciPass}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;color:red">${sciTotal-sciPass}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc">${sciTotal?((sciPass/sciTotal)*100).toFixed(1):'0'}%</td></tr>`:''}
+        ${artTotal?`<tr><td style="padding:7px 8px;border:1px solid #ccc">Arts</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc">${artTotal}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;color:green">${artPass}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc;color:red">${artTotal-artPass}</td>
+            <td style="text-align:center;padding:7px;border:1px solid #ccc">${artTotal?((artPass/artTotal)*100).toFixed(1):'0'}%</td></tr>`:''}
+      </tbody>
+    </table>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-top:30px;font-size:11px;text-align:center">
+      <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px">Class Teacher</div></div>
+      <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px">Exam Controller</div></div>
+      <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px">Head of Institution</div>
+        <div style="font-size:9px;color:#555;margin-top:2px">${sch.name||''}</div></div>
+    </div>
+  </div>`;
+}
+
+function printSummaryCert(){
+  renderSummaryCert();
+  const html=document.getElementById('summaryPreview').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Summary Certificate</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Times New Roman',serif}
+  @page{size:A4 portrait;margin:0}
+  @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+  </style></head><body>${html}<script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ PASS CERTIFICATE ═══
+function buildPassCertHTML(st){
+  const c=computeStudent(st);
+  if(!c.passed) return null;
+  const sch=S.school;
+  const g=grade(c.pct);
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const logo=sch.logo?`<img src="${sch.logo}" style="width:60px;height:60px;border-radius:50%;border:2px solid #000;object-fit:cover">`:'';
+  return `<div style="width:190mm;min-height:130mm;border:3px double #000;padding:10mm;
+    position:relative;font-family:'Times New Roman',serif;background:#fff;
+    page-break-after:always;break-after:page;margin:0 auto 8mm">
+    <div style="position:absolute;inset:3mm;border:1px solid #000;pointer-events:none"></div>
+    <div style="text-align:center;margin-bottom:8px">
+      ${logo}
+      <div style="font-size:16px;font-weight:900;text-transform:uppercase;margin-top:4px">${sch.name||'Ramnagar High School (H.S.)'}</div>
+      <div style="font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+        border-top:1px solid #000;border-bottom:1px solid #000;padding:4px 0;margin-top:6px">
+        Certificate of Passing
+      </div>
+    </div>
+    <div style="font-size:12px;line-height:2;margin-top:10px">
+      <p>This is to certify that <strong>${st.name}</strong>${st.father?`, son/daughter of <strong>${st.father}</strong>,`:','} bearing Registration No. <strong>${st.reg||'—'}</strong>, has <strong>successfully passed</strong> the <strong>${sch.exam||'Annual Examination'} ${sch.year||''}</strong> of <strong>${sch.cls||'Class XI'}</strong> from this institution.</p>
+      <p style="margin-top:8px">
+        <strong>Stream:</strong> ${st.stream} &nbsp;|&nbsp;
+        <strong>Best of 5 Total:</strong> ${c.bestTotal}/${c.bestMax} &nbsp;|&nbsp;
+        <strong>Percentage:</strong> ${c.pct}% &nbsp;|&nbsp;
+        <strong>Grade:</strong> ${g}
+      </p>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:20px;font-size:11px;text-align:center">
+      <div>Date: ${today}</div>
+      <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div>
+        <div style="font-size:9px;color:#555">${sch.name||''}</div></div>
+    </div>
+  </div>`;
+}
+
+function printPassCert(){
+  const q=(document.getElementById('certRoll')?.value||'').trim();
+  const st=S.students.find(s=>s.roll===q||s.reg===q);
+  if(!st){notif('Student not found.','err');return;}
+  if(!hasAllMarks(st)){notif('Marks not complete.','err');return;}
+  const html=buildPassCertHTML(st);
+  if(!html){notif('Student has not passed.','err');return;}
+  openCertWindow([html]);
+}
+
+function printAllPassCerts(){
+  const certs=S.students.filter(s=>hasAllMarks(s)&&computeStudent(s).passed)
+    .map(s=>buildPassCertHTML(s)).filter(Boolean);
+  if(!certs.length){notif('No passed students found.','err');return;}
+  openCertWindow(certs);
+}
+
+function openCertWindow(htmlArr){
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Pass Certificate</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{background:#888;font-family:'Times New Roman',serif}
+  .wrap{padding:10mm;display:flex;flex-direction:column;align-items:center}
+  @page{size:A4 landscape;margin:0}
+  @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    body{background:#fff!important}.no-print{display:none!important}
+    .wrap{padding:0!important;display:block!important}}
+  </style></head><body>
+  <div class="no-print" style="position:fixed;top:0;left:0;right:0;background:#1a2a4a;color:#fff;padding:10px 20px;display:flex;gap:12px;align-items:center;z-index:999">
+    <span>${htmlArr.length} Certificate(s)</span>
+    <button onclick="window.print()" style="margin-left:auto;padding:7px 20px;background:#D4A017;color:#000;border:none;border-radius:6px;font-weight:700;cursor:pointer">🖨 Print</button>
+    <button onclick="window.close()" style="padding:7px 14px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;cursor:pointer">✕</button>
+  </div>
+  <div class="wrap" style="padding-top:52px">${htmlArr.join('')}</div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ═══ NOTICE LETTER ═══
+function printNoticeLetter(){
+  const q=(document.getElementById('noticeRoll')?.value||'').trim();
+  const lang=document.getElementById('noticeLang')?.value||'en';
+  const st=S.students.find(s=>s.roll===q||s.reg===q);
+  if(!st){notif('Student not found.','err');return;}
+  if(!hasAllMarks(st)){notif('Marks not complete.','err');return;}
+  const c=computeStudent(st);
+  const sch=S.school;
+  const g=grade(c.pct);
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const logo=sch.logo?`<img src="${sch.logo}" style="width:55px;height:55px;border-radius:50%;border:1.5px solid #000;object-fit:cover">`:'';
+
+  const enLetter=`<div style="font-size:12px;line-height:1.8;margin-bottom:16px">
+    <p>Date: ${today}</p>
+    <p style="margin-top:8px">To,<br>The Guardian of <strong>${st.name}</strong><br>Registration No.: ${st.reg||'—'}</p>
+    <p style="margin-top:12px">Dear Guardian,</p>
+    <p style="margin-top:8px">We are pleased to inform you that <strong>${st.name}</strong> has appeared in the <strong>${sch.exam||'Annual Examination'} ${sch.year||''}</strong> of <strong>${sch.cls||'Class XI'}</strong> at ${sch.name||'this institution'}.</p>
+    <p style="margin-top:8px"><strong>Result: ${c.passed?'PASSED ✓':'FAILED ✗'}</strong></p>
+    <p>Stream: ${st.stream} | Best of 5: ${c.bestTotal}/${c.bestMax} | Percentage: ${c.pct}% | Grade: ${g}</p>
+    <p style="margin-top:8px">${c.passed?'We congratulate the student on this achievement and encourage continued dedication to studies.':'We urge the student to work harder and seek assistance from teachers to improve performance.'}</p>
+    <p style="margin-top:8px">Kindly collect the original Marksheet from the school office.</p>
+  </div>`;
+
+  const bnLetter=`<div style="font-size:12px;line-height:1.8;margin-top:16px;border-top:1px dashed #999;padding-top:14px">
+    <p>তারিখ: ${today}</p>
+    <p style="margin-top:8px">প্রতি,<br><strong>${st.name}</strong>-এর অভিভাবক মহাশয়/মহাশয়া</p>
+    <p style="margin-top:12px">বিষয়: পরীক্ষার ফলাফল বিষয়ক বিজ্ঞপ্তি</p>
+    <p style="margin-top:8px">জানানো যাচ্ছে যে আপনার পুত্র/কন্যা <strong>${st.name}</strong> (রেজি. নং: ${st.reg||'—'}) এই বিদ্যালয়ের <strong>${sch.cls||'একাদশ শ্রেণি'}</strong>-এর <strong>${sch.exam||'বার্ষিক পরীক্ষা'} ${sch.year||''}</strong>-তে অংশগ্রহণ করেছে।</p>
+    <p style="margin-top:8px"><strong>ফলাফল: ${c.passed?'উত্তীর্ণ ✓':'অনুত্তীর্ণ ✗'}</strong></p>
+    <p>বিভাগ: ${st.stream} | সেরা ৫-এ মোট: ${c.bestTotal}/${c.bestMax} | শতকরা: ${c.pct}% | গ্রেড: ${g}</p>
+    <p style="margin-top:8px">মূল মার্কশীট সংগ্রহের জন্য বিদ্যালয় অফিসে যোগাযোগ করুন।</p>
+  </div>`;
+
+  const letters=(lang==='en'?enLetter:lang==='bn'?bnLetter:enLetter+bnLetter);
+
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Notice Letter</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Times New Roman',serif;padding:15mm}
+  @page{size:A4 portrait;margin:0}
+  @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+  </style></head><body>
+  <div style="text-align:center;margin-bottom:14px;border-bottom:2px double #000;padding-bottom:10px">
+    ${logo}
+    <div style="font-size:17px;font-weight:900;text-transform:uppercase;margin-top:4px">${sch.name||'Ramnagar High School (H.S.)'}</div>
+    ${sch.address?`<div style="font-size:11px;margin-top:2px">${sch.address}</div>`:''}
+    ${(sch.phone||sch.email)?`<div style="font-size:11px">${[sch.phone,sch.email].filter(Boolean).join(' | ')}</div>`:''}
+  </div>
+  ${letters}
+  <div style="margin-top:30px;display:flex;justify-content:space-between;font-size:11px;text-align:center">
+    <div></div>
+    <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div>
+      <div style="font-size:9px;color:#555">${sch.name||''}</div></div>
+  </div>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══════════════════════════════════════════════════════
 // SETTINGS
 // ═══════════════════════════════════════════════════════
 function renderSettingsUI(){
@@ -3216,7 +4022,7 @@ function printMarksEntrySheet(){
   </div>
   <!-- Legend -->
   <div class="no-print" style="font-size:10px;color:#555;margin-bottom:10px">
-    🟢 Green = Above pass threshold &nbsp;|&nbsp; 🔴 Red = Fail &nbsp;|&nbsp; — = Marks not entered
+    🟢 Pass &nbsp;|&nbsp; 🔴 Fail &nbsp;|&nbsp; 🟠 AB = Absent &nbsp;|&nbsp; ░░ = Subject নেই (N/A) &nbsp;|&nbsp; — = Not entered
   </div>
   <!-- Tables -->
   ${allTables}
