@@ -814,7 +814,7 @@ let R  = JSON.parse(localStorage.getItem('rhs_R') || '[]');
 
 // ── MongoDB Sync ──
 const FEE_API = 'https://wbbchse-backend.onrender.com';
-function getFeeSchoolId(){ return 'fee_'+((S.school&&S.school.code)||'rhs').toLowerCase().replace(/[^a-z0-9]/g,'_'); }
+function getFeeSchoolId(){ return 'fee_rhs'; } // Fixed key — same across all devices
 function showFeeSync(msg,color){
   const el=document.getElementById('feeSyncStatus');
   if(el){el.textContent=msg;el.style.color=color||'#888';}
