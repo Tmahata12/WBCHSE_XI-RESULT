@@ -11,6 +11,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB error:', err));
 
+// ── Generic data schema (used for both WBCHSE and Fee) ──
 const DataSchema = new mongoose.Schema({
   schoolId:  { type: String, required: true, unique: true },
   payload:   { type: mongoose.Schema.Types.Mixed, required: true },
@@ -18,6 +19,7 @@ const DataSchema = new mongoose.Schema({
 });
 const Data = mongoose.model('Data', DataSchema);
 
+// ── WBCHSE Result routes ──
 app.get('/api/data/:schoolId', async (req, res) => {
   try {
     const doc = await Data.findOne({ schoolId: req.params.schoolId });
@@ -29,6 +31,32 @@ app.get('/api/data/:schoolId', async (req, res) => {
 });
 
 app.post('/api/data/:schoolId', async (req, res) => {
+  try {
+    const { payload } = req.body;
+    if (!payload) return res.status(400).json({ ok: false, error: 'No payload' });
+    await Data.findOneAndUpdate(
+      { schoolId: req.params.schoolId },
+      { payload, updatedAt: new Date() },
+      { upsert: true, new: true }
+    );
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ── Fee System routes ──
+app.get('/api/fee/:schoolId', async (req, res) => {
+  try {
+    const doc = await Data.findOne({ schoolId: req.params.schoolId });
+    if (!doc) return res.json({ ok: false, data: null });
+    res.json({ ok: true, data: doc.payload });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.post('/api/fee/:schoolId', async (req, res) => {
   try {
     const { payload } = req.body;
     if (!payload) return res.status(400).json({ ok: false, error: 'No payload' });
