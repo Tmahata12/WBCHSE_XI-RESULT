@@ -860,36 +860,45 @@ async function syncFromCloud(){
     const res=await fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{signal:AbortSignal.timeout(15000)});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const json=await res.json();
+    console.log('Fee sync response:', JSON.stringify(json).substring(0,200));
     if(json.ok && json.data){
-      // Backend stores {S, R} inside payload
+      // Backend: POST saves {payload:{S,R}}, GET returns {ok,data:payload}
+      // So json.data = {S, R}
       const d=json.data;
+      console.log('Data keys:', Object.keys(d));
       if(d.S){ S=d.S; localStorage.setItem('rhs_S',JSON.stringify(S)); }
       if(d.R){ R=d.R; localStorage.setItem('rhs_R',JSON.stringify(R)); }
+      if(d.xlStudents && d.xlStudents.length){
+        xlStudents=d.xlStudents;
+        localStorage.setItem('rhs_xlStudents',JSON.stringify(xlStudents));
+      }
       counter=S.counter||0;
       showFeeSync('☁ Synced','#27ae60');
       try{
         populateDropdowns();
         updateStats('s_');
         renderRecentTable();
+        renderXlList();
         loadSettingsUI();
         document.getElementById('hdrName').textContent=S.schoolName||'RAMNAGAR HIGH SCHOOL';
       }catch(e){ console.warn('UI refresh error:',e); }
     } else {
-      showFeeSync('☁ Online','#27ae60');
+      console.log('No data in cloud yet');
+      showFeeSync('☁ Connected (no data)','#27ae60');
     }
   }catch(e){
-    console.warn('Sync error:',e);
+    console.warn('Sync error:',e.message);
     showFeeSync('📴 Offline — retrying…','#e74c3c');
     setTimeout(()=>syncFromCloud(),30000);
   }
 }
 function pushToCloud(){
-  S.counter=counter; // sync counter
+  S.counter=counter;
   showFeeSync('⟳ Saving…','#f0a500');
   fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({payload:{S,R}})
+    body:JSON.stringify({payload:{S, R, xlStudents}})
   }).then(r=>r.json()).then(j=>{
     if(j.ok) showFeeSync('☁ Saved','#27ae60');
     else showFeeSync('⚠ Local only','#888');
