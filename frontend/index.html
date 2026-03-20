@@ -462,6 +462,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
   <button class="nb" onclick="goSec('entry',this)">✏️ Marks Entry</button>
   <button class="nb" onclick="goSec('results',this)">📋 Results</button>
   <button class="nb" onclick="goSec('merit',this)">🏆 Merit List</button>
+  <button class="nb" onclick="goSec('toppers',this);renderToppers()">🎯 Toppers</button>
   <button class="nb" onclick="goSec('marksheet',this)">📄 Marksheet</button>
   <button class="nb" onclick="goSec('settings',this)">⚙️ Settings</button>
   <div style="margin-left:auto;display:flex;align-items:center;padding:0 10px">
@@ -737,6 +738,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
         <tbody id="meritTbl"></tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<!-- ═══════ SUBJECT TOPPERS ═══════ -->
+<div class="sec" id="sec-toppers">
+  <div class="card">
+    <div class="card-title"><span class="ico">🎯</span>Subject Toppers <span class="card-sub">Highest scorer per subject</span></div>
+    <div id="subTopperTable"></div>
   </div>
 </div>
 
@@ -2038,7 +2047,10 @@ function renderResults(){
       <td style="font-family:'DM Mono',monospace">${c.pct}%</td>
       <td><span class="badge b-gold">${g}</span></td>
       <td><span class="badge ${c.passed?'b-pass':'b-fail'}">${c.passed?'PASS':'FAIL'}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="showMarksheet('${st.roll}')">Marksheet</button></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="showMarksheet('${st.roll}')">📄 Marksheet</button>
+        <button class="btn btn-sm" style="background:#25D366;color:#fff;border:none;margin-left:4px" onclick="showSMSTemplate('${st.roll}')">💬</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -2641,6 +2653,101 @@ function showMarksheet(roll){
     document.getElementById('msModalBody').innerHTML=html;
     document.getElementById('msModal').classList.add('open');
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// SUBJECT TOPPERS
+// ═══════════════════════════════════════════════════════
+function renderToppers(){
+  const container=document.getElementById('subTopperTable');
+  if(!container) return;
+  const complete=S.students.filter(s=>hasAllMarks(s));
+  if(!complete.length){
+    container.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">No complete marks found.</div>';
+    return;
+  }
+  let html=`<table class="rtable" style="width:100%">
+    <thead><tr>
+      <th style="text-align:left">Subject</th>
+      <th>Stream</th>
+      <th>Topper Name</th>
+      <th>Roll / Reg</th>
+      <th style="text-align:center">Score</th>
+      <th style="text-align:center">%</th>
+      <th style="text-align:center">Class Avg</th>
+    </tr></thead><tbody>`;
+
+  S.subjects.forEach((sub,gi)=>{
+    const studs=S.students.filter(s=>{
+      const subs=getStudentSubjects(s.stream,s);
+      return subs.includes(sub) && hasSubjectMarks(s.marks?s.marks[gi]:{},sub);
+    });
+    if(!studs.length) return;
+    const scored=studs.map(s=>({s,r:computeSub(sub,s.marks?s.marks[gi]:{})}))
+      .filter(x=>!isAbs(x.r.total)&&x.r.total>0)
+      .sort((a,b)=>b.r.total-a.r.total);
+    if(!scored.length) return;
+    const top=scored[0];
+    const avg=(scored.reduce((a,x)=>a+x.r.total,0)/scored.length).toFixed(1);
+    const pct=((top.r.total/top.r.max)*100).toFixed(1);
+    const streamClr=sub.stream==='Science Only'?'var(--blue3)':sub.stream==='Arts Only'?'#C39BD3':'var(--gold2)';
+    html+=`<tr>
+      <td style="font-weight:700">${sub.name}</td>
+      <td style="font-size:11px;color:${streamClr}">${sub.stream==='Both'?'Both':sub.stream==='Science Only'?'Science':'Arts'}</td>
+      <td style="font-weight:700;color:var(--gold2)">🥇 ${top.s.name}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${top.s.roll}${top.s.reg?' / '+top.s.reg:''}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--green3)">${top.r.total}<span style="font-size:9px;color:var(--text3)">/${top.r.max}</span></td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${pct}%</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;color:var(--text3)">${avg}</td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  container.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════
+// SMS / WHATSAPP RESULT TEMPLATE
+// ═══════════════════════════════════════════════════════
+function showSMSTemplate(roll){
+  const st=S.students.find(s=>s.roll===roll);
+  if(!st){notif('Student not found.','err');return;}
+  if(!hasAllMarks(st)){notif('Marks not complete.','err');return;}
+  const c=computeStudent(st);
+  const g=grade(c.pct);
+  const sch=S.school;
+  const msg=`📋 *${sch.name||'Ramnagar High School'}*
+🎓 *Result Notification*
+━━━━━━━━━━━━━━━
+👤 Student: *${st.name}*
+🆔 Reg No: ${st.reg||'—'}
+📚 Stream: ${st.stream}
+━━━━━━━━━━━━━━━
+📊 Best of 5: *${c.bestTotal}/${c.bestMax}*
+📈 Percentage: *${c.pct}%*
+🎯 Grade: *${g}*
+✅ Result: *${c.passed?'PASSED':'FAILED'}*
+━━━━━━━━━━━━━━━
+📅 ${sch.exam||'Annual Examination'} | ${sch.year||''}`;
+
+  // Show modal
+  const existing=document.getElementById('smsModal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='smsModal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:24px;max-width:480px;width:100%">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--gold2)">📱 WhatsApp Result Message</span>
+      <button onclick="document.getElementById('smsModal').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px">✕</button>
+    </div>
+    <textarea id="smsText" style="width:100%;height:200px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:12px;font-family:'DM Mono',monospace;font-size:12px;resize:none;line-height:1.6">${msg}</textarea>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button onclick="navigator.clipboard.writeText(document.getElementById('smsText').value).then(()=>notif('✓ Copied!','ok'))" style="flex:1;padding:10px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">📋 Copy</button>
+      <button onclick="window.open('https://wa.me/?text='+encodeURIComponent(document.getElementById('smsText').value),'_blank')" style="flex:1;padding:10px;background:#25D366;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">💬 WhatsApp</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
 
 // ═══════════════════════════════════════════════════════
