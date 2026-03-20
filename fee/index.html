@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fee Receipt System — Ramnagar High School</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --red:#8b1a1a; --gold:#c9973a; --ink:#111; --muted:#666;
+  --bg:#ede8da; --cream:#fdf8f0; --ede:#ede4cc;
+  --border:#ccc; --success:#2d6a4f;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:var(--bg);min-height:100vh;color:var(--ink);}
+
+.app-header{background:linear-gradient(135deg,#6b1010,#8b1a1a,#a52020);padding:13px 26px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 14px rgba(139,26,26,.45);position:sticky;top:0;z-index:200;}
+.hdr-logo{width:44px;height:44px;background:#e8c97a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 2px 6px rgba(0,0,0,.3);flex-shrink:0;overflow:hidden;cursor:pointer;transition:box-shadow .2s;}
+.hdr-logo:hover{box-shadow:0 2px 14px rgba(255,255,255,.35);}
+.hdr-logo img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+.hdr-text h1{color:#fff;font-size:1.18rem;font-weight:700;}
+.hdr-text p{color:rgba(255,255,255,.7);font-size:.74rem;margin-top:1px;font-style:italic;}
+.hdr-nav{margin-left:auto;display:flex;gap:7px;align-items:center;}
+.hdr-btn{padding:7px 14px;border:1.5px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;border-radius:5px;font-size:.8rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.hdr-btn:hover{background:rgba(255,255,255,.22);}
+.hdr-btn.active-tab{background:rgba(255,255,255,.28);border-color:#fff;}
+.hdr-user{color:rgba(255,255,255,.8);font-size:.76rem;display:flex;align-items:center;gap:6px;padding:0 6px;}
+.logout-btn{padding:5px 12px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.2);color:#fff;border-radius:4px;font-size:.74rem;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.logout-btn:hover{background:rgba(255,50,50,.35);}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#5a0d0d 0%,#8b1a1a 50%,#6b1010 100%);display:flex;align-items:center;justify-content:center;z-index:9000;padding:20px;}
+.login-box{background:#fff;border-radius:12px;padding:36px 38px;width:100%;max-width:370px;box-shadow:0 24px 64px rgba(0,0,0,.5);}
+.login-logo-wrap{width:80px;height:80px;border:3px solid var(--gold);border-radius:50%;margin:0 auto 12px;overflow:hidden;background:#fdf8f0;display:flex;align-items:center;justify-content:center;font-size:32px;}
+.login-logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+.login-school{font-size:1.05rem;font-weight:900;color:var(--red);letter-spacing:.4px;text-transform:uppercase;text-align:center;line-height:1.3;}
+.login-sub{font-size:.72rem;color:var(--muted);text-align:center;margin-top:3px;margin-bottom:20px;}
+.login-divider{border:none;border-top:1px solid #eee;margin:16px 0 18px;}
+.login-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px;}
+.login-inp{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:4px;font-size:.92rem;outline:none;font-family:Arial,sans-serif;transition:border-color .2s,box-shadow .2s;margin-bottom:12px;}
+.login-inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,151,58,.14);}
+.login-btn{width:100%;padding:11px;background:var(--red);color:#fff;border:none;border-radius:5px;font-size:.94rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 3px 10px rgba(139,26,26,.3);margin-top:2px;}
+.login-btn:hover{background:#a52020;transform:translateY(-1px);}
+.login-err{color:#c0392b;font-size:.8rem;margin-top:9px;min-height:18px;font-weight:600;text-align:center;}
+.login-hint{font-size:.7rem;color:#bbb;text-align:center;margin-top:16px;}
+
+
+.page{display:none;} .page.active{display:block;}
+.app-body{max-width:1200px;margin:0 auto;padding:22px 16px;}
+
+.panel{background:#fff;border:1px solid #ddd;border-radius:5px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:18px;}
+.panel-head{background:linear-gradient(180deg,#f5edd8,var(--ede));border-bottom:2px solid var(--gold);padding:11px 18px;font-weight:700;font-size:.9rem;color:var(--red);display:flex;align-items:center;gap:8px;}
+.panel-body{padding:18px;}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px 18px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.full{grid-column:1/-1;}
+label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
+label .req{color:var(--red);}
+input,select,textarea{font-family:Arial,sans-serif;font-size:.9rem;padding:7px 10px;border:1.5px solid var(--border);border-radius:3px;background:#fff;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,151,58,.14);}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+textarea{resize:vertical;}
+
+.divider{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:4px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e0e0e0;}
+
+.btn-primary{padding:10px 22px;background:var(--red);color:#fff;border:none;border-radius:4px;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(139,26,26,.28);}
+.btn-primary:hover{background:#a52020;transform:translateY(-1px);}
+.btn-secondary{padding:10px 18px;background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:4px;font-size:.86rem;cursor:pointer;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--gold);color:var(--ink);}
+.btn-danger{padding:8px 16px;background:#fff;color:#c0392b;border:1.5px solid #e0b0b0;border-radius:4px;font-size:.84rem;cursor:pointer;transition:all .2s;}
+.btn-danger:hover{background:#fdf0f0;border-color:#c0392b;}
+.form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+/* Settings layout */
+.settings-layout{display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:start;}
+.settings-nav{background:#fff;border:1px solid #ddd;border-radius:5px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);position:sticky;top:80px;}
+.sni{padding:11px 16px;cursor:pointer;font-size:.86rem;font-weight:600;color:var(--muted);border-left:3px solid transparent;transition:all .18s;display:flex;align-items:center;gap:8px;border-bottom:1px solid #f0f0f0;}
+.sni:last-child{border-bottom:none;}
+.sni:hover{background:#fdf8f0;color:var(--ink);}
+.sni.active{color:var(--red);border-left-color:var(--red);background:#fdf8f0;}
+.stab{display:none;} .stab.active{display:block;}
+
+/* Fee struct table */
+.fst{width:100%;border-collapse:collapse;}
+.fst th{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:7px 9px;border-bottom:1px solid #e0e0e0;text-align:left;}
+.fst td{padding:5px 7px;border-bottom:1px solid #f5f5f5;}
+.fst td input{border:none;border-bottom:1.5px dashed var(--border);border-radius:0;padding:4px;font-size:.88rem;background:transparent;width:100%;}
+.fst td input:focus{box-shadow:none;border-bottom-color:var(--gold);background:rgba(201,151,58,.05);}
+.del-btn{background:none;border:none;cursor:pointer;color:#c0392b;font-size:.9rem;padding:0 5px;}
+.add-row-link{font-size:.78rem;color:var(--red);cursor:pointer;padding:6px 8px;display:inline-flex;align-items:center;gap:4px;font-weight:700;background:none;border:none;}
+.add-row-link:hover{text-decoration:underline;}
+
+/* Tags */
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;min-height:28px;}
+.tag{display:inline-flex;align-items:center;gap:4px;background:#fdf8f0;border:1px solid var(--gold);border-radius:20px;padding:3px 10px;font-size:.8rem;font-weight:600;color:var(--red);}
+.tag .tx{cursor:pointer;font-size:.85rem;color:#c0392b;margin-left:1px;}
+.tag-row{display:flex;gap:8px;margin-top:8px;}
+.tag-row input{flex:1;max-width:170px;}
+
+/* Receipt form */
+.two-col{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
+
+/* Upload zone */
+.upload-zone{border:2px dashed var(--gold);border-radius:6px;padding:20px;text-align:center;background:linear-gradient(135deg,#fdf8f0,#f5edd8);cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--red);background:#fdf0e8;}
+.uz-icon{font-size:1.9rem;margin-bottom:6px;}
+.upload-zone h3{font-size:.9rem;color:var(--red);margin-bottom:3px;}
+.upload-zone p{font-size:.74rem;color:var(--muted);}
+.upload-zone input[type=file]{display:none;}
+.sample-link{font-size:.74rem;color:var(--red);cursor:pointer;text-decoration:underline;}
+
+/* Student list */
+.student-list{max-height:190px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;margin-bottom:12px;}
+.student-list table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.student-list th{background:#f5edd8;padding:5px 8px;font-weight:700;text-align:left;border-bottom:1px solid #ddd;font-size:.68rem;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.student-list td{padding:5px 8px;border-bottom:1px solid #f5f5f5;cursor:pointer;}
+.student-list tr:hover td{background:#fdf8f0;}
+.student-list tr.sel td{background:#fff3e0;font-weight:700;}
+
+/* Fee table in form */
+.fee-table{width:100%;border-collapse:collapse;}
+.fee-table th{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:5px 7px;border-bottom:1px solid #e0e0e0;text-align:left;}
+.fee-table td{padding:4px 6px;border-bottom:1px solid #f5f5f5;}
+.fee-table td input{border:none;border-bottom:1.5px dashed var(--border);border-radius:0;padding:3px 4px;font-size:.86rem;width:100%;background:transparent;}
+.fee-table td input:focus{box-shadow:none;border-bottom-color:var(--gold);background:rgba(201,151,58,.05);}
+.fee-total-row td{border-top:2px solid var(--gold);font-weight:700;color:var(--red);padding-top:7px;}
+
+/* Stats & records */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.stat-card{background:#fff;border:1px solid #ddd;border-radius:4px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.stat-val{font-size:1.3rem;font-weight:700;color:var(--red);font-family:'Courier New',monospace;}
+.stat-lbl{font-size:.64rem;color:var(--muted);margin-top:3px;text-transform:uppercase;font-weight:700;letter-spacing:.4px;}
+.search-bar{display:flex;gap:8px;padding:9px 14px;border-bottom:1px solid #eee;background:#fdf8f0;}
+.search-bar input{flex:1;font-size:.84rem;padding:6px 9px;}
+.search-bar select{width:120px;font-size:.8rem;padding:6px 9px;}
+.rec-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+.rec-table th{background:#f5edd8;padding:7px 10px;font-weight:700;font-size:.68rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;text-align:left;border-bottom:2px solid var(--gold);white-space:nowrap;}
+.rec-table td{padding:7px 10px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+.rec-table tr:hover td{background:#fdf8f0;}
+.rno{font-family:'Courier New',monospace;font-size:.72rem;color:var(--red);font-weight:700;}
+.amt-cell{font-weight:700;color:var(--success);font-family:'Courier New',monospace;font-size:.77rem;}
+.icon-btn{width:27px;height:27px;border:1px solid #ddd;background:#fff;border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .15s;}
+.icon-btn:hover{border-color:var(--gold);background:#fdf8f0;}
+.icon-btn.del:hover{border-color:#c0392b;background:#fdf0f0;}
+.empty-st{text-align:center;padding:30px 16px;color:var(--muted);font-style:italic;font-size:.86rem;}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;right:20px;color:#fff;padding:10px 18px;border-radius:5px;font-size:.86rem;box-shadow:0 4px 18px rgba(0,0,0,.2);transform:translateY(70px);opacity:0;transition:all .3s;z-index:9999;display:flex;align-items:center;gap:8px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* Modal */
+#receiptModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);z-index:500;align-items:center;justify-content:center;padding:14px;}
+#receiptModal.open{display:flex;}
+.rw{background:#fff;width:750px;max-height:94vh;overflow-y:auto;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,.45);}
+.modal-bar{background:#f5f5f5;padding:9px 16px;display:flex;justify-content:flex-end;gap:8px;border-bottom:1px solid #ddd;}
+.modal-bar button{padding:7px 16px;border-radius:4px;font-size:.86rem;cursor:pointer;font-weight:700;border:none;transition:all .2s;}
+.mprt{background:var(--red);color:#fff;} .mprt:hover{background:#a52020;}
+.mcls{background:#fff;border:1.5px solid #bbb!important;color:#444;} .mcls:hover{background:#eee;}
+
+/* Receipt */
+.receipt{font-family:Arial,sans-serif;font-size:12px;color:#000;background:#fff;}
+.copy-tag{text-align:right;font-style:italic;font-size:11px;padding:6px 20px 0;color:#333;}
+.rsh{display:flex;align-items:center;padding:8px 18px 6px;gap:12px;border-bottom:1.5px solid #000;}
+.rsl{width:62px;height:62px;border:2px solid #8b1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;background:#fdf8f0;}
+.rsn{font-size:21px;font-weight:900;letter-spacing:2px;text-transform:uppercase;font-family:Arial Black,Arial,sans-serif;}
+.rss{font-size:10px;color:#222;margin-top:2px;}
+.rsa{font-size:9.5px;color:#333;margin-top:1px;}
+.rm{display:flex;justify-content:space-between;padding:7px 18px 5px;font-size:11.5px;border-bottom:1px solid #555;}
+.rm-l,.rm-r{line-height:1.75;} .rm-r{text-align:right;}
+.rft{width:100%;border-collapse:collapse;}
+.rft thead th{background:#000;color:#fff;padding:6px 16px;font-size:10.5px;font-weight:700;text-align:left;letter-spacing:.5px;}
+.rft thead th.r{text-align:right;width:88px;}
+.rft tbody td{padding:5px 16px;border-bottom:1px solid #eee;font-size:11px;}
+.rft tbody td.r{text-align:right;}
+.rft tfoot td{padding:6px 16px;font-size:12px;border-top:2px solid #000;}
+.rft tfoot td.r{text-align:right;font-weight:700;}
+.rf{padding:6px 18px 14px;font-size:11px;color:#333;}
+.rf .sig{text-align:right;font-style:italic;margin-top:8px;}
+.cut-line{border:none;border-top:1.5px dashed #888;margin:4px 0;position:relative;}
+.cut-line::before{content:'✂';position:absolute;left:10px;top:-9px;font-size:14px;color:#888;background:#fff;padding:0 4px;}
+.rec-copy-wrap{position:relative;overflow:hidden;}
+.wm-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
+.wm-layer img{max-width:60%;max-height:60%;object-fit:contain;}
+.rec-copy-inner{position:relative;z-index:1;}
+
+/* Fee report cards */
+.fee-card{background:#fff;border:1px solid #ddd;border-radius:6px;padding:14px 16px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.fee-card-name{font-size:.82rem;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.fee-card-nums{display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:6px;}
+.fee-card-paid{color:var(--success);font-weight:700;font-family:'Courier New',monospace;}
+.fee-card-pend{color:#c0392b;font-weight:700;font-family:'Courier New',monospace;}
+.fee-card-total{color:var(--muted);font-family:'Courier New',monospace;}
+.progress-wrap{background:#f0f0f0;border-radius:10px;height:8px;overflow:hidden;margin-top:4px;}
+.progress-bar{height:8px;border-radius:10px;transition:width .4s;}
+.fee-card-pct{font-size:.68rem;color:var(--muted);margin-top:4px;text-align:right;}
+
+@media(max-width:860px){.two-col,.settings-layout{grid-template-columns:1fr;}}
+@media print{body *{visibility:hidden;}.receipt,.receipt *{visibility:visible;}.receipt{position:fixed;inset:0;width:100%;}.modal-bar{display:none;}}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo-wrap" id="loginLogoWrap">
+      <span id="loginLogoEmoji">🏫</span>
+      <img id="loginLogoImg" src="" alt="logo"/>
+    </div>
+    <div class="login-school" id="loginSchoolName">RAMNAGAR HIGH SCHOOL</div>
+    <div class="login-sub">Fee Receipt Management System</div>
+    <hr class="login-divider"/>
+    <label class="login-label">Username</label>
+    <input class="login-inp" type="text" id="loginUser" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('loginPass').focus()"/>
+    <label class="login-label">Password</label>
+    <div style="position:relative;">
+      <input class="login-inp" type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" style="padding-right:42px;"/>
+      <span id="pwdToggleBtn" onclick="togglePwd()" style="position:absolute;right:11px;top:50%;transform:translateY(-55%);cursor:pointer;font-size:1rem;color:var(--muted);user-select:none;line-height:1;" title="Show/hide password">🙈</span>
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔐 Login</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div class="app-header">
+  <div class="hdr-logo" id="hdrLogoBtn" title="Click to change logo (go to Settings → Logo)">
+    <span id="hdrLogoEmoji">🏫</span>
+    <img id="hdrLogoImg" src="" alt="logo"/>
+  </div>
+  <div class="hdr-text">
+    <h1 id="hdrName">RAMNAGAR HIGH SCHOOL</h1>
+    <p>Fee Receipt Management System</p>
+  </div>
+  <div class="hdr-nav">
+    <button class="hdr-btn active-tab" onclick="showPage('receipt',this)">📝 New Receipt</button>
+    <button class="hdr-btn" onclick="showPage('records',this)">📋 Records</button>
+    <button class="hdr-btn" onclick="showPage('students',this)">👤 Students</button>
+    <button class="hdr-btn" onclick="showPage('report',this)">📊 Report</button>
+    <button class="hdr-btn" onclick="showPage('settings',this)">⚙️ Settings</button>
+    <span id="feeSyncStatus" style="font-size:11px;color:#888;padding:0 8px">📴 Offline</span>
+    <div class="hdr-user">
+      <span id="hdrUserLabel">👤</span>
+      <button class="logout-btn" onclick="doLogout()">⏏ Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: NEW RECEIPT ═══ -->
+<div id="page-receipt" class="page active">
+<div class="app-body">
+<div class="two-col">
+  <div>
+    <div class="panel">
+      <div class="panel-head">📤 Upload Student Data (Excel)</div>
+      <div class="panel-body">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('xlFile').click()"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleDrop(event)">
+          <div class="uz-icon">📊</div>
+          <h3>Click or Drag &amp; Drop Excel File</h3>
+          <p>Required columns: <strong>Name, ID, Class, Section, Roll, Session</strong></p>
+          <input type="file" id="xlFile" accept=".xlsx,.xls" onchange="handleExcelUpload(event)"/>
+        </div>
+        <span class="sample-link" onclick="downloadSample()">⬇ Download Sample Excel Template</span>
+        <div id="xlWrap" style="display:none;margin-top:12px;">
+          <div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;display:flex;justify-content:space-between;">
+            <span>📋 <span id="xlCount">0</span> Students Loaded — click a row to fill form</span>
+            <span style="color:var(--red);cursor:pointer;text-decoration:underline;font-weight:normal;" onclick="clearStudents()">Clear</span>
+          </div>
+          <div class="student-list">
+            <table><thead><tr><th>#</th><th>Name</th><th>ID</th><th>Class</th><th>Sec</th><th>Roll</th></tr></thead>
+            <tbody id="xlBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">📝 Fee Receipt Details</div>
+      <div class="panel-body">
+        <div class="fgrid">
+          <div class="divider">Student Information</div>
+
+          <!-- Searchable student name with dropdown -->
+          <div class="fg full" style="position:relative;">
+            <label>Student Name <span class="req">*</span></label>
+            <input type="text" id="f_name" placeholder="Type name to search or enter manually…" autocomplete="off"
+              oninput="stuDropFilter()" onkeydown="stuDropKey(event)" onfocus="stuDropFilter()"/>
+            <div id="stuDropList" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid var(--gold);border-top:none;border-radius:0 0 5px 5px;max-height:200px;overflow-y:auto;z-index:300;box-shadow:0 6px 18px rgba(0,0,0,.12);"></div>
+          </div>
+
+          <div class="fg"><label>Student ID <span class="req">*</span></label><input type="text" id="f_id" placeholder="e.g. 1250785"/></div>
+          <div class="fg"><label>Session <span class="req">*</span></label><input type="text" id="f_session"/></div>
+          <div class="fg"><label>Class <span class="req">*</span></label><select id="f_class"><option value="">Select</option></select></div>
+          <div class="fg"><label>Section</label><select id="f_section"><option value="">(None)</option></select></div>
+          <div class="fg"><label>Roll No.</label><input type="text" id="f_roll" placeholder="Roll number"/></div>
+
+          <div class="divider">Receipt Details</div>
+          <div class="fg"><label>Receipt Date <span class="req">*</span></label><input type="date" id="f_date"/></div>
+          <div class="fg"><label>Payment Mode</label><select id="f_paymode"><option>CASH</option><option>CHEQUE</option><option>ONLINE</option><option>DD</option></select></div>
+
+          <div class="divider">Fee Particulars</div>
+          <div class="fg full">
+            <table class="fee-table">
+              <thead><tr><th style="width:52%">Particulars</th><th style="width:21%">Amount (₹)</th><th style="width:21%">Paid (₹)</th><th style="width:6%"></th></tr></thead>
+              <tbody id="feeBody"></tbody>
+              <tfoot><tr class="fee-total-row"><td><strong>TOTAL</strong></td><td><strong id="totAmt">0.00</strong></td><td><strong id="totPaid">0.00</strong></td><td></td></tr></tfoot>
+            </table>
+            <button class="add-row-link" onclick="addFeeRow()">＋ Add Row</button>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-secondary" onclick="resetReceiptForm()">🔄 Reset</button>
+          <button class="btn-primary" onclick="saveAndPrint()">💾 Save &amp; Print Receipt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="s_total">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat-card"><div class="stat-val" id="s_today">0</div><div class="stat-lbl">Today</div></div>
+      <div class="stat-card"><div class="stat-val" id="s_amt">₹0</div><div class="stat-lbl">Collected</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">📋 Recent Receipts</div>
+      <div style="overflow-x:auto;">
+        <table class="rec-table"><thead><tr><th>Receipt No</th><th>Name</th><th>Paid</th><th></th></tr></thead><tbody id="recentBody"></tbody></table>
+        <div id="recentEmpty" class="empty-st">No receipts yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ═══ PAGE: RECORDS ═══ -->
+<div id="page-records" class="page">
+<div class="app-body">
+  <div class="stats-row" style="max-width:560px;">
+    <div class="stat-card"><div class="stat-val" id="r_total">0</div><div class="stat-lbl">Total Receipts</div></div>
+    <div class="stat-card"><div class="stat-val" id="r_today">0</div><div class="stat-lbl">Today</div></div>
+    <div class="stat-card"><div class="stat-val" id="r_amt">₹0</div><div class="stat-lbl">Collected</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-head">📋 All Records <span id="recCount" style="margin-left:auto;background:var(--red);color:#fff;font-size:.68rem;padding:2px 10px;border-radius:12px;font-family:'Courier New',monospace;">0</span></div>
+    <div class="search-bar" style="flex-wrap:wrap;gap:6px;">
+      <input type="text" id="srchQ" placeholder="Search name / receipt no / ID..." oninput="renderRecTable()" style="min-width:180px;"/>
+      <select id="srchCls" onchange="renderRecTable()"><option value="">All Classes</option></select>
+      <input type="date" id="srchFrom" onchange="renderRecTable()" title="From date" style="width:130px;font-size:.8rem;padding:6px 8px;"/>
+      <input type="date" id="srchTo"   onchange="renderRecTable()" title="To date"   style="width:130px;font-size:.8rem;padding:6px 8px;"/>
+      <button class="btn-secondary" style="padding:6px 12px;font-size:.78rem;" onclick="clearDateFilter()">✕ Clear Date</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="rec-table"><thead><tr><th>Receipt No</th><th>Name</th><th>ID</th><th>Class</th><th>Date</th><th>Amount</th><th>Paid</th><th></th></tr></thead><tbody id="recBody"></tbody></table>
+      <div id="recEmpty" class="empty-st">📄 No records yet.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PAGE: STUDENTS ═══ -->
+<div id="page-students" class="page">
+<div class="app-body">
+  <div class="panel">
+    <div class="panel-head">👤 Student Records</div>
+    <div class="panel-body" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="fg" style="min-width:220px;">
+        <label>Search (Name / ID)</label>
+        <input type="text" id="stu_search" placeholder="Type name or student ID…" oninput="renderStudents()"/>
+      </div>
+      <div class="fg" style="min-width:120px;">
+        <label>Class</label>
+        <select id="stu_cls" onchange="renderStudents()"><option value="">All Classes</option></select>
+      </div>
+      <div class="fg" style="min-width:120px;">
+        <label>Section</label>
+        <select id="stu_sec" onchange="renderStudents()"><option value="">All Sections</option></select>
+      </div>
+      <button class="btn-secondary" onclick="clearStuFilters()" style="align-self:flex-end;">✕ Clear</button>
+    </div>
+  </div>
+
+  <div id="stuList"></div>
+  <div id="stuEmpty" class="empty-st" style="display:none;">👤 No students found.</div>
+
+  <!-- Student detail modal -->
+  <div id="stuModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;overflow-y:auto;padding:20px;">
+    <div style="background:#fff;max-width:700px;margin:0 auto;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);">
+      <div style="background:linear-gradient(135deg,#6b1010,#a52020);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:#fff;font-weight:700;font-size:1rem;" id="stuModalTitle">Student Details</div>
+        <button onclick="closeStuModal()" style="background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;border-radius:4px;padding:5px 14px;font-size:.85rem;">✕ Close</button>
+      </div>
+      <div id="stuModalBody" style="padding:20px;max-height:80vh;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PAGE: REPORT ═══ -->
+<div id="page-report" class="page">
+<div class="app-body">
+
+  <!-- Filter bar -->
+  <div class="panel">
+    <div class="panel-head">📊 Fee Collection Report</div>
+    <div class="panel-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div class="fg" style="min-width:140px;">
+        <label>From Date</label>
+        <input type="date" id="rpt_from"/>
+      </div>
+      <div class="fg" style="min-width:140px;">
+        <label>To Date</label>
+        <input type="date" id="rpt_to"/>
+      </div>
+      <div class="fg" style="min-width:120px;">
+        <label>Session</label>
+        <select id="rpt_session"><option value="">All Sessions</option></select>
+      </div>
+      <button class="btn-primary" onclick="generateReport()" style="align-self:flex-end;">📊 Generate</button>
+      <button class="btn-secondary" onclick="exportReport()" style="align-self:flex-end;">⬇ Export Excel</button>
+      <button class="btn-secondary" onclick="printFeeReport()" style="align-self:flex-end;">🖨️ Print PDF</button>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="stats-row" style="grid-template-columns:repeat(4,1fr);max-width:720px;" id="rptCards">
+    <div class="stat-card"><div class="stat-val" id="rpt_receipts">—</div><div class="stat-lbl">Receipts</div></div>
+    <div class="stat-card"><div class="stat-val" id="rpt_students">—</div><div class="stat-lbl">Students</div></div>
+    <div class="stat-card"><div class="stat-val" id="rpt_total">—</div><div class="stat-lbl">Total Amt</div></div>
+    <div class="stat-card"><div class="stat-val" id="rpt_paid">—</div><div class="stat-lbl">Paid Amt</div></div>
+  </div>
+
+  <!-- Fee-wise with progress bars -->
+  <div class="panel" id="rptFeePanel" style="display:none;">
+    <div class="panel-head">💰 Fee-wise Collection
+      <span id="rptRange" style="font-size:.74rem;font-weight:normal;color:var(--muted);margin-left:8px;"></span>
+    </div>
+    <div id="rptFeeCards" style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+    <!-- Grand total row -->
+    <div id="rptGrandTotal" style="margin:0 16px 16px;padding:12px 16px;background:linear-gradient(135deg,#fdf8f0,#f5edd8);border:2px solid var(--gold);border-radius:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    </div>
+  </div>
+
+  <!-- Class-wise table -->
+  <div class="panel" id="rptTablePanel" style="display:none;">
+    <div class="panel-head">📋 Class-wise Breakdown</div>
+    <div style="overflow-x:auto;">
+      <table class="rec-table" id="rptTable">
+        <thead><tr>
+          <th>Class</th><th>Receipts</th><th>Students</th>
+          <th>Total Amt (₹)</th><th>Paid (₹)</th><th>Pending (₹)</th><th>Collection %</th>
+        </tr></thead>
+        <tbody id="rptBody"></tbody>
+        <tfoot id="rptFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pending summary -->
+  <div class="panel" id="rptPendingPanel" style="display:none;">
+    <div class="panel-head" style="color:#c0392b;">⚠️ Fee-wise Pending by Class</div>
+    <div id="rptPendingBody" style="padding:16px;"></div>
+  </div>
+
+  <div id="rptEmpty" class="empty-st" style="display:none;">📄 No receipts found for selected filters.</div>
+</div>
+</div>
+
+<!-- ═══ PAGE: SETTINGS ═══ -->
+<div id="page-settings" class="page">
+<div class="app-body">
+  <div class="settings-layout">
+    <div class="settings-nav">
+      <div class="sni active" onclick="showSTab('school',this)">🏫 School Info</div>
+      <div class="sni" onclick="showSTab('fees',this)">💰 Fee Structure</div>
+      <div class="sni" onclick="showSTab('classes',this)">📚 Classes &amp; Sections</div>
+      <div class="sni" onclick="showSTab('receipt',this)">🧾 Receipt Options</div>
+      <div class="sni" onclick="showSTab('branding',this)">🖼️ Logo &amp; Watermark</div>
+      <div class="sni" onclick="showSTab('users',this)">🔐 Users &amp; Login</div>
+      <div class="sni" onclick="showSTab('data',this)">🗄️ Data</div>
+    </div>
+
+    <div>
+      <!-- SCHOOL -->
+      <div id="stab-school" class="stab active">
+        <div class="panel">
+          <div class="panel-head">🏫 School Information</div>
+          <div class="panel-body">
+            <div class="fgrid">
+              <div class="fg full"><label>School Name</label><input type="text" id="set_name" placeholder="RAMNAGAR HIGH SCHOOL"/></div>
+              <div class="fg full"><label>Recognition / Type</label><input type="text" id="set_type" placeholder="Govt. Sponsored School..."/></div>
+              <div class="fg full"><label>Address Line 1</label><input type="text" id="set_addr1" placeholder="P.O-..., DIST.-..., PIN-..."/></div>
+              <div class="fg full"><label>Address Line 2 (Contact / Email / Website)</label><input type="text" id="set_addr2" placeholder="Contact : ... E-mail : ... Website - ..."/></div>
+              <div class="fg"><label>Contact Number</label><input type="text" id="set_phone"/></div>
+              <div class="fg"><label>Email</label><input type="text" id="set_email"/></div>
+              <div class="fg full"><label>Website URL</label><input type="text" id="set_website"/></div>
+              <div class="fg"><label>Established Year</label><input type="text" id="set_estd" placeholder="1909"/></div>
+              <div class="fg"><label>Current Session / Year</label><input type="text" id="set_session" placeholder="2026"/></div>
+            </div>
+            <div class="form-actions"><button class="btn-primary" onclick="saveSchool()">💾 Save School Info</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEES -->
+      <div id="stab-fees" class="stab">
+        <div class="panel">
+          <div class="panel-head">💰 Default Fee Structure <span style="font-size:.72rem;font-weight:normal;color:var(--muted);margin-left:6px;">— auto-fills every new receipt</span></div>
+          <div class="panel-body">
+            <table class="fst">
+              <thead><tr><th style="width:50%">Fee Name</th><th style="width:22%">Amount (₹)</th><th style="width:22%">Paid (₹)</th><th style="width:6%"></th></tr></thead>
+              <tbody id="feeStructBody"></tbody>
+            </table>
+            <button class="add-row-link" onclick="addFeeStructRow()">＋ Add Fee Type</button>
+            <div class="form-actions">
+              <button class="btn-primary" onclick="saveFeeStruct()">💾 Save Fee Structure</button>
+              <button class="btn-secondary" onclick="resetFeeStruct()">↩ Reset to Default</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLASSES -->
+      <div id="stab-classes" class="stab">
+        <div class="panel">
+          <div class="panel-head">📚 Classes &amp; Sections</div>
+          <div class="panel-body">
+            <div class="fgrid">
+              <div class="fg full">
+                <label>Classes</label>
+                <div class="tag-list" id="classTags"></div>
+                <div class="tag-row">
+                  <input type="text" id="newClass" placeholder="e.g. XII or Class 10" onkeydown="if(event.key==='Enter')addClassTag()"/>
+                  <button class="btn-secondary" style="padding:7px 14px;" onclick="addClassTag()">＋ Add</button>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="fg full">
+                <label>Sections</label>
+                <div class="tag-list" id="sectionTags"></div>
+                <div class="tag-row">
+                  <input type="text" id="newSection" placeholder="e.g. A or Science" onkeydown="if(event.key==='Enter')addSectionTag()"/>
+                  <button class="btn-secondary" style="padding:7px 14px;" onclick="addSectionTag()">＋ Add</button>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions"><button class="btn-primary" onclick="saveClasses()">💾 Save Classes &amp; Sections</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECEIPT OPTIONS -->
+      <div id="stab-receipt" class="stab">
+        <div class="panel">
+          <div class="panel-head">🧾 Receipt Options</div>
+          <div class="panel-body">
+            <div class="fgrid">
+              <div class="fg"><label>Receipt Number Prefix</label><input type="text" id="set_prefix" placeholder="e.g. 2026"/></div>
+              <div class="fg"><label>Current Counter (next receipt = prefix + counter+1)</label><input type="number" id="set_counter" min="0"/></div>
+              <div class="fg full"><label>Footer Note (printed on receipt)</label><textarea id="set_footer" rows="2" placeholder="Keep this receipt safe..."></textarea></div>
+              <div class="fg full"><label>Signature Label</label><input type="text" id="set_siglabel" placeholder="Signature of Collector"/></div>
+              <div class="fg"><label>Print Student Copy</label><select id="set_showS"><option value="1">Yes</option><option value="0">No</option></select></div>
+              <div class="fg"><label>Print Office Copy</label><select id="set_showO"><option value="1">Yes</option><option value="0">No</option></select></div>
+            </div>
+            <div class="form-actions"><button class="btn-primary" onclick="saveReceiptOpts()">💾 Save Receipt Options</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRANDING -->
+      <div id="stab-branding" class="stab">
+        <div class="panel">
+          <div class="panel-head">🖼️ School Logo</div>
+          <div class="panel-body">
+            <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;">
+              <!-- preview -->
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+                <div id="logoPreviewWrap" style="width:90px;height:90px;border:2px solid var(--gold);border-radius:50%;overflow:hidden;background:#fdf8f0;display:flex;align-items:center;justify-content:center;font-size:36px;">
+                  <span id="logoEmoji">🏫</span>
+                  <img id="logoImgPreview" src="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+                </div>
+                <span style="font-size:.7rem;color:var(--muted);">Preview</span>
+              </div>
+              <div style="flex:1;min-width:220px;">
+                <div class="fgrid">
+                  <div class="fg full">
+                    <label>Upload Logo Image (PNG / JPG / SVG)</label>
+                    <div style="border:2px dashed var(--gold);border-radius:5px;padding:16px;text-align:center;background:#fdf8f0;cursor:pointer;" onclick="document.getElementById('logoFileInput').click()">
+                      <div style="font-size:1.4rem;margin-bottom:4px;">📁</div>
+                      <div style="font-size:.82rem;color:var(--red);font-weight:700;">Click to Upload Logo</div>
+                      <div style="font-size:.74rem;color:var(--muted);margin-top:2px;">Recommended: square image, min 100×100px</div>
+                      <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)"/>
+                    </div>
+                  </div>
+                  <div class="fg full" style="margin-top:2px;">
+                    <label>Or use Emoji / Text as Logo</label>
+                    <div style="display:flex;gap:8px;">
+                      <input type="text" id="set_logoEmoji" placeholder="e.g. 🏫 or RHS" style="max-width:160px;font-size:1.2rem;"/>
+                      <button class="btn-secondary" style="padding:7px 14px;" onclick="applyEmojiLogo()">Apply</button>
+                    </div>
+                  </div>
+                  <div class="fg full" style="margin-top:4px;">
+                    <button class="btn-danger" style="width:fit-content;" onclick="clearLogo()">✕ Remove Logo (use default)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions" style="margin-top:14px;">
+              <button class="btn-primary" onclick="saveLogo()">💾 Save Logo</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">💧 Watermark on Receipt</div>
+          <div class="panel-body">
+            <div class="fgrid">
+              <div class="fg">
+                <label>Watermark Type</label>
+                <select id="set_wmType" onchange="toggleWmInputs()">
+                  <option value="none">None (disabled)</option>
+                  <option value="text">Text Watermark</option>
+                  <option value="image">Image Watermark</option>
+                </select>
+              </div>
+              <div class="fg">
+                <label>Opacity (0.01 – 0.30)</label>
+                <input type="number" id="set_wmOpacity" value="0.07" min="0.01" max="0.30" step="0.01"/>
+              </div>
+
+              <!-- TEXT watermark options -->
+              <div class="fg full wm-text-opt" style="display:none;">
+                <label>Watermark Text</label>
+                <input type="text" id="set_wmText" placeholder="e.g. RAMNAGAR HIGH SCHOOL or PAID"/>
+              </div>
+              <div class="fg wm-text-opt" style="display:none;">
+                <label>Font Size (px)</label>
+                <input type="number" id="set_wmFontSize" value="48" min="20" max="120"/>
+              </div>
+              <div class="fg wm-text-opt" style="display:none;">
+                <label>Text Color</label>
+                <input type="color" id="set_wmColor" value="#8b1a1a" style="height:38px;padding:3px 6px;"/>
+              </div>
+
+              <!-- IMAGE watermark options -->
+              <div class="fg full wm-img-opt" style="display:none;">
+                <label>Upload Watermark Image (PNG recommended for transparency)</label>
+                <div style="border:2px dashed var(--gold);border-radius:5px;padding:14px;text-align:center;background:#fdf8f0;cursor:pointer;" onclick="document.getElementById('wmFileInput').click()">
+                  <div style="font-size:1.2rem;margin-bottom:3px;">📁</div>
+                  <div style="font-size:.82rem;color:var(--red);font-weight:700;">Click to Upload Watermark Image</div>
+                  <div style="font-size:.72rem;color:var(--muted);">Use PNG with transparent background for best result</div>
+                  <input type="file" id="wmFileInput" accept="image/*" style="display:none;" onchange="handleWmImageUpload(event)"/>
+                </div>
+                <div id="wmImgStatus" style="font-size:.78rem;color:var(--success);margin-top:6px;display:none;">✅ Watermark image loaded</div>
+              </div>
+
+              <!-- PREVIEW -->
+              <div class="fg full" id="wmPreviewWrap" style="display:none;">
+                <label>Preview (how it appears on receipt)</label>
+                <div style="position:relative;width:100%;height:80px;border:1px solid #ddd;border-radius:4px;background:#fff;overflow:hidden;">
+                  <div id="wmPreviewText" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;"></div>
+                  <div style="position:relative;z-index:1;padding:10px;font-size:.78rem;color:#aaa;text-align:center;">Receipt content would appear here</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary" onclick="saveWatermark()">💾 Save Watermark</button>
+              <button class="btn-secondary" onclick="previewWatermark()">👁 Preview</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div id="stab-users" class="stab">
+        <div class="panel">
+          <div class="panel-head">🔐 Users &amp; Login Management</div>
+          <div class="panel-body">
+            <div style="font-size:.8rem;color:var(--muted);margin-bottom:14px;">Manage who can access this system. At least one admin must exist.</div>
+            <div id="userListWrap" style="margin-bottom:18px;"></div>
+            <hr style="border:none;border-top:1px solid #eee;margin:14px 0;"/>
+            <div style="font-weight:700;font-size:.86rem;color:var(--red);margin-bottom:12px;">➕ Add New User</div>
+            <div class="fgrid">
+              <div class="fg"><label>Username</label><input type="text" id="nu_user" placeholder="e.g. teacher1"/></div>
+              <div class="fg"><label>Display Name</label><input type="text" id="nu_name" placeholder="e.g. Tapas Sir"/></div>
+              <div class="fg"><label>Password</label><input type="password" id="nu_pass" placeholder="min 4 characters"/></div>
+              <div class="fg"><label>Role</label>
+                <select id="nu_role">
+                  <option value="admin">Admin (full access)</option>
+                  <option value="operator">Operator (no Settings/Users)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions"><button class="btn-primary" onclick="addUser()">➕ Add User</button></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">🔑 Change My Password</div>
+          <div class="panel-body">
+            <div class="fgrid">
+              <div class="fg"><label>Current Password</label><input type="password" id="cp_old" placeholder="Current password"/></div>
+              <div class="fg"></div>
+              <div class="fg"><label>New Password</label><input type="password" id="cp_new" placeholder="New password"/></div>
+              <div class="fg"><label>Confirm New Password</label><input type="password" id="cp_confirm" placeholder="Repeat new password"/></div>
+            </div>
+            <div class="form-actions"><button class="btn-primary" onclick="changeMyPassword()">🔑 Change Password</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA -->
+      <div id="stab-data" class="stab">
+        <div class="panel">
+          <div class="panel-head">🗄️ Data Management</div>
+          <div class="panel-body" style="display:flex;flex-direction:column;gap:14px;">
+
+            <!-- Export -->
+            <div style="border:1px solid #d4edda;border-radius:6px;padding:14px;background:#f0fff4;">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:4px;color:#155724;">📤 Export / Backup</div>
+              <div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">সব receipt data Excel-এ export করুন। এই file দিয়ে পরে restore করা যাবে।</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="btn-primary" onclick="exportRecords()">⬇ Export to Excel (Backup)</button>
+                <button class="btn-secondary" onclick="exportJSON()">⬇ Export JSON (Full Backup)</button>
+              </div>
+              <div id="lastBackupInfo" style="font-size:.74rem;color:var(--muted);margin-top:8px;"></div>
+            </div>
+
+            <!-- Import -->
+            <div style="border:1px solid #bee5eb;border-radius:6px;padding:14px;background:#f0f9ff;">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:4px;color:#0c5460;">📥 Import / Restore</div>
+              <div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">আগে export করা JSON বা Excel file থেকে data restore করুন।</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <label class="btn-secondary" style="cursor:pointer;padding:7px 14px;display:inline-block;">
+                  📂 Import JSON Backup
+                  <input type="file" accept=".json" style="display:none;" onchange="importJSON(this)"/>
+                </label>
+                <label class="btn-secondary" style="cursor:pointer;padding:7px 14px;display:inline-block;">
+                  📂 Import Excel Backup
+                  <input type="file" accept=".xlsx,.xls" style="display:none;" onchange="importExcel(this)"/>
+                </label>
+              </div>
+              <div id="importStatus" style="font-size:.8rem;margin-top:10px;min-height:18px;"></div>
+            </div>
+
+            <!-- Danger zone -->
+            <div style="border:1px solid #ffd0d0;border-radius:6px;padding:14px;background:#fffafa;">
+              <div style="font-weight:700;font-size:.9rem;margin-bottom:12px;color:#c0392b;">⚠️ Danger Zone</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <div style="flex:1;min-width:200px;">
+                  <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">সব receipts delete করুন। Settings থাকবে।</div>
+                  <button class="btn-danger" onclick="clearAllRecs()">🗑️ Delete All Records</button>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                  <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;">সব কিছু মুছে factory reset করুন।</div>
+                  <button class="btn-danger" onclick="fullReset()">🔴 Reset Everything</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="receiptModal">
+  <div class="rw">
+    <div class="modal-bar">
+      <button class="mcls" onclick="closeModal()">✕ Close</button>
+      <button class="mprt" onclick="printReceipt()">🖨️ Print</button>
+    </div>
+    <div id="receiptContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<script>
+/* ═══ DEFAULTS ═══ */
+const DEF = {
+  schoolName:'RAMNAGAR HIGH SCHOOL',
+  schoolType:'Govt. Sponsored School recognised by WBBSE & WBCHSE',
+  addr1:'P.O-UTTAR RAMNAGAR, P.S-AUSGRAM, DIST.-PURBA BARDHAMAN, PIN-713152',
+  addr2:'Contact : 8918116091, E-mail : ramnagarhighschool1909@gmail.com, Website - https://ramnagarhighschool1909.co.in',
+  phone:'8918116091', email:'ramnagarhighschool1909@gmail.com',
+  website:'https://ramnagarhighschool1909.co.in', estd:'1909',
+  session:String(new Date().getFullYear()),
+  prefix:'2026', counter:19,
+  footerNote:'Keep this receipt safe for future reference.',
+  sigLabel:'Signature of Collector',
+  showStudentCopy:'1', showOfficeCopy:'1',
+  classes:['VI','VII','VIII','IX','X','XI','XII'],
+  sections:['A','B','C','D'],
+  feeStructure:[
+    {name:'Development Fees',amt:240,paid:240},
+    {name:'ID Card Fees',    amt:60, paid:60},
+    {name:'Library Fees',   amt:30, paid:30},
+    {name:'Game Fees',      amt:30, paid:30},
+    {name:'Saraswati Puja', amt:30, paid:30},
+    {name:'Processing Fees',amt:10, paid:10},
+  ]
+};
+
+let S  = JSON.parse(localStorage.getItem('rhs_S') || 'null') || JSON.parse(JSON.stringify(DEF));
+let R  = JSON.parse(localStorage.getItem('rhs_R') || '[]');
+
+// ── MongoDB Sync ──
+const FEE_API = 'https://wbbchse-backend.onrender.com';
+function getFeeSchoolId(){ return 'fee_'+((S.school&&S.school.code)||'rhs').toLowerCase().replace(/[^a-z0-9]/g,'_'); }
+function showFeeSync(msg,color){
+  const el=document.getElementById('feeSyncStatus');
+  if(el){el.textContent=msg;el.style.color=color||'#888';}
+}
+async function syncFromCloud(){
+  showFeeSync('⟳ Syncing…','#f0a500');
+  try{
+    const res=await fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{signal:AbortSignal.timeout(8000)});
+    const json=await res.json();
+    if(json.ok&&json.data){
+      S=json.data.S||S;
+      R=json.data.R||R;
+      localStorage.setItem('rhs_S',JSON.stringify(S));
+      localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+      showFeeSync('☁ Synced','#27ae60');
+    } else { showFeeSync('📴 Offline','#888'); }
+  }catch(e){ showFeeSync('📴 Offline','#888'); }
+}
+function pushToCloud(){
+  showFeeSync('⟳ Saving…','#f0a500');
+  fetch(`${FEE_API}/api/fee/${getFeeSchoolId()}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({payload:{S,R}})
+  }).then(r=>r.json()).then(j=>{
+    if(j.ok) showFeeSync('☁ Saved','#27ae60');
+    else showFeeSync('⚠ Local only','#888');
+  }).catch(()=>showFeeSync('📴 Local only','#888'));
+}
+let counter = S.counter;
+let xlStudents = JSON.parse(localStorage.getItem('rhs_xlStudents')||'[]');
+
+/* ═══ USER / AUTH SYSTEM ═══ */
+// Users stored separately (hashed lightly with btoa for obfuscation — not crypto)
+function getUsers(){
+  const raw=localStorage.getItem('rhs_users');
+  if(raw){try{return JSON.parse(raw);}catch(e){}}
+  // Default users
+  const def=[{username:'admin',name:'Administrator',role:'admin',ph:btoa('admin123')}];
+  localStorage.setItem('rhs_users',JSON.stringify(def));
+  return def;
+}
+function saveUsers(users){localStorage.setItem('rhs_users',JSON.stringify(users));}
+let currentUser=null; // set on login
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const users=getUsers();
+  const found=users.find(x=>x.username===u&&x.ph===btoa(p));
+  if(!found){
+    document.getElementById('loginErr').textContent='❌ Wrong username or password.';
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginPass').focus();
+    return;
+  }
+  currentUser=found;
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('hdrUserLabel').textContent='👤 '+found.name;
+  // Operator: hide Settings
+  if(found.role==='operator'){
+    document.querySelectorAll('.hdr-btn').forEach(b=>{
+      if(b.textContent.includes('Settings'))b.style.display='none';
+    });
+  }
+  showToast('👋 Welcome, '+found.name+'!');
+}
+function doLogout(){
+  if(!confirm('Logout করবেন?'))return;
+  currentUser=null;
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('loginScreen').style.display='flex';
+  // Re-show all nav buttons
+  document.querySelectorAll('.hdr-btn').forEach(b=>b.style.display='');
+}
+function togglePwd(){
+  const p=document.getElementById('loginPass');
+  const btn=document.getElementById('pwdToggleBtn');
+  if(p.type==='password'){p.type='text';btn.textContent='👁';}
+  else{p.type='password';btn.textContent='🙈';}
+}
+
+/* ── User management UI ── */
+function renderUserList(){
+  const users=getUsers();
+  const wrap=document.getElementById('userListWrap');
+  wrap.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.84rem;">
+    <thead><tr style="background:#f5edd8;">
+      <th style="padding:7px 10px;text-align:left;font-size:.68rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;border-bottom:2px solid var(--gold);">Username</th>
+      <th style="padding:7px 10px;text-align:left;font-size:.68rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;border-bottom:2px solid var(--gold);">Name</th>
+      <th style="padding:7px 10px;text-align:left;font-size:.68rem;text-transform:uppercase;color:var(--muted);letter-spacing:.4px;border-bottom:2px solid var(--gold);">Role</th>
+      <th style="padding:7px 10px;border-bottom:2px solid var(--gold);"></th>
+    </tr></thead>
+    <tbody>${users.map((u,i)=>`<tr style="border-bottom:1px solid #f5f5f5;">
+      <td style="padding:7px 10px;font-family:'Courier New',monospace;font-weight:700;color:var(--red);">${esc(u.username)}</td>
+      <td style="padding:7px 10px;">${esc(u.name)}</td>
+      <td style="padding:7px 10px;"><span style="padding:2px 9px;border-radius:12px;font-size:.72rem;font-weight:700;background:${u.role==='admin'?'#fdf0f0':'#f0f8f0'};color:${u.role==='admin'?'#c0392b':'#2d6a4f'};">${u.role}</span></td>
+      <td style="padding:7px 10px;">
+        ${users.length>1?`<button class="btn-danger" style="padding:4px 10px;font-size:.76rem;" onclick="deleteUser(${i})">🗑️ Remove</button>`:'<span style="font-size:.72rem;color:#bbb;">—</span>'}
+      </td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+function addUser(){
+  const u=gv('nu_user'),n=gv('nu_name'),p=document.getElementById('nu_pass').value,r=gv('nu_role');
+  if(!u||!n||!p){showToast('⚠️ সব field পূরণ করুন।',true);return;}
+  if(p.length<4){showToast('⚠️ Password কমপক্ষে 4 character হতে হবে।',true);return;}
+  const users=getUsers();
+  if(users.find(x=>x.username===u)){showToast('⚠️ এই username আগে থেকেই আছে।',true);return;}
+  users.push({username:u,name:n,role:r,ph:btoa(p)});
+  saveUsers(users); renderUserList();
+  ['nu_user','nu_name','nu_pass'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅ User added: '+u);
+}
+function deleteUser(i){
+  const users=getUsers();
+  if(users.length<=1){showToast('⚠️ কমপক্ষে একজন user রাখতে হবে।',true);return;}
+  if(currentUser&&users[i].username===currentUser.username){showToast('⚠️ নিজেকে delete করা যাবে না।',true);return;}
+  if(!confirm('User "'+users[i].username+'" delete করবেন?'))return;
+  users.splice(i,1); saveUsers(users); renderUserList();
+  showToast('🗑️ User removed.');
+}
+function changeMyPassword(){
+  const old=document.getElementById('cp_old').value;
+  const nw=document.getElementById('cp_new').value;
+  const cf=document.getElementById('cp_confirm').value;
+  if(!old||!nw||!cf){showToast('⚠️ সব field পূরণ করুন।',true);return;}
+  if(nw.length<4){showToast('⚠️ নতুন password কমপক্ষে 4 character হতে হবে।',true);return;}
+  if(nw!==cf){showToast('⚠️ নতুন password দুটো মিলছে না।',true);return;}
+  const users=getUsers();
+  const idx=users.findIndex(x=>x.username===currentUser?.username);
+  if(idx<0){showToast('⚠️ User not found.',true);return;}
+  if(users[idx].ph!==btoa(old)){showToast('⚠️ Current password ভুল।',true);return;}
+  users[idx].ph=btoa(nw); saveUsers(users);
+  ['cp_old','cp_new','cp_confirm'].forEach(id=>document.getElementById(id).value='');
+  showToast('✅ Password পরিবর্তন হয়েছে!');
+}
+
+/* ═══ NAVIGATION ═══ */
+function showPage(p, btn) {
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.hdr-btn').forEach(b=>b.classList.remove('active-tab'));
+  btn.classList.add('active-tab');
+  if(p==='records'){populateSrchCls();renderRecTable();updateStats('r_');}
+  if(p==='report'){populateRptSession();generateReport();}
+  if(p==='students'){populateStuFilters();renderStudents();}
+  if(p==='settings'){loadSettingsUI();}
+}
+function showSTab(t, el) {
+  document.querySelectorAll('.stab').forEach(e=>e.classList.remove('active'));
+  document.getElementById('stab-'+t).classList.add('active');
+  document.querySelectorAll('.sni').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══ SETTINGS UI LOAD ═══ */
+function loadSettingsUI() {
+  sv('set_name',   S.schoolName); sv('set_type',  S.schoolType);
+  sv('set_addr1',  S.addr1);      sv('set_addr2',  S.addr2);
+  sv('set_phone',  S.phone);      sv('set_email',  S.email);
+  sv('set_website',S.website);    sv('set_estd',   S.estd);
+  sv('set_session',S.session);
+  sv('set_prefix', S.prefix);     sv('set_counter',S.counter);
+  sv('set_footer', S.footerNote); sv('set_siglabel',S.sigLabel);
+  sv('set_showS',  S.showStudentCopy); sv('set_showO',S.showOfficeCopy);
+  renderFeeStructUI(); renderTagsUI(); loadBrandingUI(); renderUserList(); updateLastBackupInfo();
+}
+function sv(id,val){const e=document.getElementById(id);if(e)e.value=val||'';}
+function gv(id){return(document.getElementById(id)?.value||'').trim();}
+
+/* ── Fee Structure Settings ── */
+function renderFeeStructUI(){
+  const tb=document.getElementById('feeStructBody'); tb.innerHTML='';
+  (S.feeStructure||[]).forEach(f=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" value="${esc(f.name)}" placeholder="Fee name" style="width:100%;"/></td><td><input type="number" value="${f.amt}" min="0" step="0.01" style="width:100%;text-align:right;"/></td><td><input type="number" value="${f.paid}" min="0" step="0.01" style="width:100%;text-align:right;"/></td><td><button class="del-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function addFeeStructRow(){
+  const tb=document.getElementById('feeStructBody');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Fee name" style="width:100%;"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" style="width:100%;text-align:right;"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" style="width:100%;text-align:right;"/></td><td><button class="del-btn" onclick="this.closest('tr').remove()">✕</button></td>`;
+  tb.appendChild(tr);
+}
+function saveFeeStruct(){
+  const rows=[];
+  document.querySelectorAll('#feeStructBody tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input');
+    const name=ins[0]?.value.trim();
+    if(name) rows.push({name,amt:parseFloat(ins[1]?.value)||0,paid:parseFloat(ins[2]?.value)||0});
+  });
+  S.feeStructure=rows; saveS(); showToast('✅ Fee structure saved!');
+}
+function resetFeeStruct(){S.feeStructure=JSON.parse(JSON.stringify(DEF.feeStructure));renderFeeStructUI();saveS();showToast('↩ Reset to default fees.');}
+
+/* ── Classes & Sections Tags ── */
+function renderTagsUI(){
+  document.getElementById('classTags').innerHTML=(S.classes||[]).map((c,i)=>`<span class="tag">${esc(c)}<span class="tx" onclick="remClass(${i})">✕</span></span>`).join('');
+  document.getElementById('sectionTags').innerHTML=(S.sections||[]).map((s,i)=>`<span class="tag">${esc(s)}<span class="tx" onclick="remSection(${i})">✕</span></span>`).join('');
+}
+function addClassTag(){const v=gv('newClass');if(!v)return;if(!S.classes.includes(v)){S.classes.push(v);renderTagsUI();}document.getElementById('newClass').value='';}
+function addSectionTag(){const v=gv('newSection');if(!v)return;if(!S.sections.includes(v)){S.sections.push(v);renderTagsUI();}document.getElementById('newSection').value='';}
+function remClass(i){S.classes.splice(i,1);renderTagsUI();}
+function remSection(i){S.sections.splice(i,1);renderTagsUI();}
+function saveClasses(){saveS();populateDropdowns();populateSrchCls();showToast('✅ Classes & sections saved!');}
+
+/* ── School ── */
+function saveSchool(){
+  S.schoolName=gv('set_name'); S.schoolType=gv('set_type');
+  S.addr1=gv('set_addr1');     S.addr2=gv('set_addr2');
+  S.phone=gv('set_phone');     S.email=gv('set_email');
+  S.website=gv('set_website'); S.estd=gv('set_estd');
+  S.session=gv('set_session');
+  saveS(); document.getElementById('hdrName').textContent=S.schoolName;
+  showToast('✅ School info saved!');
+}
+
+/* ── Receipt Options ── */
+function saveReceiptOpts(){
+  S.prefix=gv('set_prefix');
+  S.counter=parseInt(gv('set_counter'))||S.counter;
+  S.footerNote=gv('set_footer');
+  S.sigLabel=gv('set_siglabel');
+  S.showStudentCopy=gv('set_showS');
+  S.showOfficeCopy=gv('set_showO');
+  counter=S.counter; saveS(); showToast('✅ Receipt options saved!');
+}
+
+function saveS(){
+  localStorage.setItem('rhs_S',JSON.stringify(S));
+  pushToCloud();
+}
+
+/* ═══ DROPDOWNS ═══ */
+function populateDropdowns(){
+  const fc=document.getElementById('f_class');
+  const cur=fc.value; fc.innerHTML='<option value="">Select</option>';
+  (S.classes||[]).forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;fc.appendChild(o);});
+  fc.value=cur;
+  const fs=document.getElementById('f_section');
+  const curs=fs.value; fs.innerHTML='<option value="">(None)</option>';
+  (S.sections||[]).forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;fs.appendChild(o);});
+  fs.value=curs;
+}
+function populateSrchCls(){
+  const el=document.getElementById('srchCls'); if(!el) return;
+  const cur=el.value; el.innerHTML='<option value="">All Classes</option>';
+  (S.classes||[]).forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;el.appendChild(o);});
+  el.value=cur;
+}
+
+/* ═══ FEE ROWS (receipt form) ═══ */
+function initFeeRows(){
+  const tb=document.getElementById('feeBody'); tb.innerHTML='';
+  (S.feeStructure||[]).forEach(f=>addFeeRow(f.name,f.amt,f.paid));
+  calcTotal();
+}
+function addFeeRow(name='',amt='',paid=''){
+  const tb=document.getElementById('feeBody');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input type="text" placeholder="Fee description" value="${esc(name)}" style="width:100%;"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" value="${amt||''}" oninput="calcTotal()" style="width:100%;text-align:right;"/></td><td><input type="number" placeholder="0.00" min="0" step="0.01" value="${paid||''}" oninput="calcTotal()" style="width:100%;text-align:right;"/></td><td><button class="del-btn" onclick="this.closest('tr').remove();calcTotal()">✕</button></td>`;
+  tb.appendChild(tr);
+}
+function calcTotal(){
+  let a=0,p=0;
+  document.querySelectorAll('#feeBody tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input[type=number]');
+    a+=parseFloat(ins[0]?.value)||0; p+=parseFloat(ins[1]?.value)||0;
+  });
+  document.getElementById('totAmt').textContent=a.toFixed(2);
+  document.getElementById('totPaid').textContent=p.toFixed(2);
+  return{amt:a,paid:p};
+}
+
+/* ═══ EXCEL ═══ */
+function handleExcelUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      // Load ALL sheets and merge
+      let newData=[];
+      wb.SheetNames.forEach(sheetName=>{
+        const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{defval:''});
+        newData=[...newData,...rows];
+      });
+      if(!newData.length){showToast('⚠️ Empty or unreadable file.',true);return;}
+
+      // Merge with existing — deduplicate by ID (trimmed)
+      const existingIds=new Set(xlStudents.map(s=>xv(s,['ID','id','Student ID','StudentID','BSP ID',' ID']).trim().toLowerCase()));
+      let added=0, skipped=0;
+      newData.forEach(s=>{
+        const id=xv(s,['ID','id','Student ID','StudentID','BSP ID',' ID']).trim().toLowerCase();
+        if(id&&existingIds.has(id)){skipped++;}
+        else{xlStudents.push(s);if(id)existingIds.add(id);added++;}
+      });
+
+      // Save to localStorage
+      try{localStorage.setItem('rhs_xlStudents',JSON.stringify(xlStudents));}
+      catch(e){showToast('⚠️ Storage full — data loaded for this session only.',true);}
+
+      renderXlList();
+      const msg=skipped>0
+        ?`✅ ${added} জন যোগ হয়েছে, ${skipped} জন duplicate skip।`
+        :`✅ ${added} জন student loaded! মোট: ${xlStudents.length}`;
+      showToast(msg);
+    }catch(err){showToast('⚠️ Cannot read Excel file.',true);}
+  };
+  reader.readAsArrayBuffer(f);
+}
+function handleDrop(e){
+  e.preventDefault(); document.getElementById('uploadZone').classList.remove('drag');
+  const f=e.dataTransfer.files[0]; if(f)handleExcelUpload({target:{files:[f]}});
+}
+function renderXlList(){
+  document.getElementById('xlCount').textContent=xlStudents.length;
+  document.getElementById('xlWrap').style.display=xlStudents.length?'block':'none';
+  document.getElementById('xlBody').innerHTML=xlStudents.map((s,i)=>`<tr onclick="fillFromXl(${i})" id="slr${i}"><td>${i+1}</td><td>${xv(s,['Name','name','NAME','Student Name'])}</td><td>${xv(s,['ID','id','Student ID','StudentID','BSP ID',' ID'])}</td><td>${xv(s,['Class','class','CLASS'])}</td><td>${xv(s,['Section','section','SECTION','SEC','Sec'])}</td><td>${xv(s,['Roll','roll','ROLL','Roll No'])}</td></tr>`).join('');
+}
+function xv(s,keys){
+  // Exact match first
+  for(const k of keys){if(s[k]!==undefined&&s[k]!=='')return String(s[k]);}
+  // Trimmed key match (handles leading/trailing spaces in column headers)
+  const trimmed={};
+  Object.keys(s).forEach(k=>{trimmed[k.trim()]=s[k];});
+  for(const k of keys){if(trimmed[k]!==undefined&&trimmed[k]!=='')return String(trimmed[k]);}
+  // Fuzzy match — if keys include 'ID', also check any column whose name contains 'ID' or 'id'
+  if(keys.includes('ID')||keys.includes('id')){
+    for(const k of Object.keys(s)){
+      if(/id/i.test(k)&&s[k]!==undefined&&s[k]!=='')return String(s[k]);
+    }
+  }
+  return'';
+}
+function fillFromXl(i){
+  const s=xlStudents[i];
+  document.querySelectorAll('#xlBody tr').forEach(tr=>tr.classList.remove('sel'));
+  document.getElementById('slr'+i)?.classList.add('sel');
+
+  const name   = xv(s,['Name','name','NAME','Student Name']).trim();
+  const id     = xv(s,['ID','id','Student ID','StudentID','BSP ID',' ID']).trim();
+  const session= (xv(s,['Session','session','SESSION','Year'])||S.session).trim();
+  const roll   = xv(s,['Roll','roll','ROLL','Roll No']).trim();
+  const cls    = xv(s,['Class','class','CLASS']).trim();
+  const sec    = xv(s,['Section','section','SECTION','SEC','Sec']).trim();
+
+  document.getElementById('f_name').value    = name;
+  document.getElementById('f_id').value      = id;
+  document.getElementById('f_session').value = session;
+  document.getElementById('f_roll').value    = roll;
+
+  // Class dropdown — try exact, then case-insensitive
+  const clsSel=document.getElementById('f_class');
+  let clsSet=false;
+  [...clsSel.options].forEach(o=>{if(o.value===cls){clsSel.value=cls;clsSet=true;}});
+  if(!clsSet)[...clsSel.options].forEach(o=>{if(o.value.toLowerCase()===cls.toLowerCase()){clsSel.value=o.value;clsSet=true;}});
+  // If class not in dropdown yet, add it temporarily
+  if(!clsSet&&cls){const o=document.createElement('option');o.value=o.textContent=cls;clsSel.appendChild(o);clsSel.value=cls;}
+
+  // Section dropdown — same logic
+  const secSel=document.getElementById('f_section');
+  let secSet=false;
+  [...secSel.options].forEach(o=>{if(o.value===sec){secSel.value=sec;secSet=true;}});
+  if(!secSet)[...secSel.options].forEach(o=>{if(o.value.toLowerCase()===sec.toLowerCase()){secSel.value=o.value;secSet=true;}});
+  if(!secSet&&sec){const o=document.createElement('option');o.value=o.textContent=sec;secSel.appendChild(o);secSel.value=sec;}
+
+  // Close dropdown if open
+  const drop=document.getElementById('stuDropList');
+  if(drop)drop.style.display='none';
+}
+function clearStudents(){
+  if(xlStudents.length&&!confirm('সব student data ('+xlStudents.length+' জন) মুছে ফেলব?'))return;
+  xlStudents=[];
+  localStorage.removeItem('rhs_xlStudents');
+  document.getElementById('xlWrap').style.display='none';
+  document.getElementById('xlFile').value='';
+  showToast('🗑️ Student list cleared.');
+}
+
+/* ── Student name dropdown search in receipt form ── */
+let stuDropIdx=-1;
+function getStuSuggestions(){
+  // Combine xlStudents (from Excel) + unique students from past receipts R
+  const all=[];
+  const seen=new Set();
+  // Excel-loaded students first
+  xlStudents.forEach(s=>{
+    const name=xv(s,['Name','name','NAME','Student Name']);
+    const id=xv(s,['ID','id','Student ID','StudentID','BSP ID',' ID']);
+    const key=(name+'|'+id).toLowerCase();
+    if(!seen.has(key)){seen.add(key); all.push({name,id,cls:xv(s,['Class','class','CLASS']),sec:xv(s,['Section','section','SECTION','SEC','Sec']),roll:xv(s,['Roll','roll','ROLL','Roll No']),session:xv(s,['Session','session','SESSION'])});}
+  });
+  // Past receipt students
+  R.forEach(r=>{
+    const key=(r.studentName+'|'+r.studentId).toLowerCase();
+    if(!seen.has(key)){seen.add(key); all.push({name:r.studentName,id:r.studentId,cls:r.admClass,sec:r.section,roll:r.rollNo,session:r.session});}
+  });
+  return all;
+}
+function stuDropFilter(){
+  const q=(document.getElementById('f_name').value||'').toLowerCase().trim();
+  const drop=document.getElementById('stuDropList');
+  const all=getStuSuggestions();
+  const matches=q?all.filter(s=>s.name.toLowerCase().includes(q)||(s.id||'').toLowerCase().includes(q)):all.slice(0,20);
+  if(!matches.length){drop.style.display='none';return;}
+  stuDropIdx=-1;
+  drop.innerHTML=matches.map((s,i)=>`<div class="stu-drop-item" data-i="${i}"
+    onmousedown="stuDropSelect(${i})" onmouseover="stuDropHover(${i})"
+    style="padding:8px 12px;cursor:pointer;font-size:.84rem;border-bottom:1px solid #f5f5f5;">
+    <strong>${esc(s.name)}</strong>
+    <span style="color:var(--muted);font-size:.76rem;margin-left:6px;">${esc(s.id||'')}</span>
+    <span style="float:right;font-size:.74rem;color:var(--gold);font-weight:600;">${esc(s.cls||'')}${s.sec?' / '+s.sec:''}</span>
+  </div>`).join('');
+  drop._matches=matches;
+  drop.style.display='block';
+}
+function stuDropHover(i){
+  stuDropIdx=i;
+  document.querySelectorAll('.stu-drop-item').forEach((el,j)=>{
+    el.style.background=j===i?'#fdf8f0':'#fff';
+  });
+}
+function stuDropKey(e){
+  const drop=document.getElementById('stuDropList');
+  const items=drop.querySelectorAll('.stu-drop-item');
+  if(!items.length)return;
+  if(e.key==='ArrowDown'){e.preventDefault();stuDropIdx=Math.min(stuDropIdx+1,items.length-1);stuDropHover(stuDropIdx);}
+  else if(e.key==='ArrowUp'){e.preventDefault();stuDropIdx=Math.max(stuDropIdx-1,0);stuDropHover(stuDropIdx);}
+  else if(e.key==='Enter'&&stuDropIdx>=0){e.preventDefault();stuDropSelect(stuDropIdx);}
+  else if(e.key==='Escape'){drop.style.display='none';}
+}
+function stuDropSelect(i){
+  const drop=document.getElementById('stuDropList');
+  const s=drop._matches[i];
+  if(!s)return;
+
+  document.getElementById('f_name').value    = s.name;
+  document.getElementById('f_id').value      = s.id||'';
+  if(s.roll)    document.getElementById('f_roll').value    = s.roll;
+  if(s.session) document.getElementById('f_session').value = s.session;
+
+  // Class dropdown
+  const cls=(s.cls||'').trim();
+  const clsSel=document.getElementById('f_class');
+  let clsSet=false;
+  [...clsSel.options].forEach(o=>{if(o.value===cls){clsSel.value=cls;clsSet=true;}});
+  if(!clsSet)[...clsSel.options].forEach(o=>{if(o.value.toLowerCase()===cls.toLowerCase()){clsSel.value=o.value;clsSet=true;}});
+  if(!clsSet&&cls){const o=document.createElement('option');o.value=o.textContent=cls;clsSel.appendChild(o);clsSel.value=cls;}
+
+  // Section dropdown
+  const sec=(s.sec||'').trim();
+  const secSel=document.getElementById('f_section');
+  let secSet=false;
+  [...secSel.options].forEach(o=>{if(o.value===sec){secSel.value=sec;secSet=true;}});
+  if(!secSet)[...secSel.options].forEach(o=>{if(o.value.toLowerCase()===sec.toLowerCase()){secSel.value=o.value;secSet=true;}});
+  if(!secSet&&sec){const o=document.createElement('option');o.value=o.textContent=sec;secSel.appendChild(o);secSel.value=sec;}
+
+  drop.style.display='none';
+  stuDropIdx=-1;
+}
+// Close dropdown when clicking outside
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#f_name')&&!e.target.closest('#stuDropList')){
+    const d=document.getElementById('stuDropList');
+    if(d)d.style.display='none';
+  }
+});
+function downloadSample(){
+  const ws=XLSX.utils.aoa_to_sheet([['Name','ID','Session','Class','Section','Roll'],['Ipsita Mallick','1250785','2026','XII','A','1'],['Rahul Das','1250786','2026','XI','B','5'],['Priya Ghosh','1250787','2026','X','','12']]);
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Students');
+  XLSX.writeFile(wb,'RHS_Student_Template.xlsx'); showToast('✅ Template downloaded!');
+}
+
+/* ═══ SAVE & PRINT ═══ */
+function getFormData(){
+  const fees=[];
+  document.querySelectorAll('#feeBody tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input');
+    const name=ins[0]?.value.trim();
+    const amt=parseFloat(ins[1]?.value)||0;
+    const paid=parseFloat(ins[2]?.value)||0;
+    if(name&&(amt||paid))fees.push({name,amt,paid});
+  });
+  const {amt,paid}=calcTotal();
+  const cls=document.getElementById('f_class').value;
+  const sec=document.getElementById('f_section').value;
+  return{
+    receiptNo:S.prefix+String(++counter).padStart(10,'0'),
+    studentName:document.getElementById('f_name').value.trim(),
+    studentId:document.getElementById('f_id').value.trim(),
+    session:document.getElementById('f_session').value.trim(),
+    admClass:cls+(sec?' ('+sec+')':''),
+    rollNo:document.getElementById('f_roll').value.trim(),
+    recDate:document.getElementById('f_date').value,
+    payMode:document.getElementById('f_paymode').value,
+    fees,totalAmt:amt,totalPaid:paid,
+    timestamp:new Date().toISOString()
+  };
+}
+function validate(d){
+  if(!d.studentName)return'Please enter student name.';
+  if(!d.studentId)return'Please enter student ID.';
+  if(!d.admClass||d.admClass==='(None)')return'Please select a class.';
+  if(!d.recDate)return'Please select receipt date.';
+  if(!d.fees.length)return'Please add at least one fee entry.';
+  if(d.totalAmt<=0)return'Total amount must be greater than 0.';
+  return null;
+}
+function saveAndPrint(){
+  const d=getFormData(); const err=validate(d);
+  if(err){showToast('⚠️ '+err,true);return;}
+  // Duplicate detection: same studentId + same date + same class
+  const dup=R.find(r=>r.studentId===d.studentId&&r.recDate===d.recDate&&r.admClass===d.admClass);
+  if(dup){
+    const ok=confirm('⚠️ DUPLICATE DETECTED!\n\nStudent: '+d.studentName+'\nID: '+d.studentId+'\nDate: '+fmtD(d.recDate)+'\nClass: '+d.admClass+'\n\nA receipt ('+dup.receiptNo+') already exists for this student on this date.\n\nDo you still want to create a new receipt?');
+    if(!ok)return;
+  }
+  R.unshift(d); S.counter=counter; saveS();
+  localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+  updateStats('s_'); renderRecentTable(); showReceiptModal(d); resetReceiptForm();
+  showToast('✅ Receipt saved!');
+}
+function resetReceiptForm(){
+  ['f_name','f_id','f_roll'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_session').value=S.session;
+  document.getElementById('f_class').selectedIndex=0;
+  document.getElementById('f_section').selectedIndex=0;
+  document.getElementById('f_paymode').selectedIndex=0;
+  document.getElementById('f_date').value=new Date().toISOString().split('T')[0];
+  initFeeRows();
+}
+
+/* ═══ TABLES ═══ */
+function renderRecentTable(){
+  const tb=document.getElementById('recentBody');
+  const em=document.getElementById('recentEmpty');
+  const recent=R.slice(0,8);
+  if(!recent.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=recent.map(r=>`<tr><td><span class="rno">${r.receiptNo}</span></td><td style="font-size:.78rem;">${r.studentName}</td><td class="amt-cell">₹${r.totalPaid.toFixed(2)}</td><td><div style="display:flex;gap:4px;"><button class="icon-btn" onclick="viewRec('${r.receiptNo}')">🖨️</button><button class="icon-btn del" onclick="delRec('${r.receiptNo}')">🗑️</button></div></td></tr>`).join('');
+}
+function renderRecTable(){
+  const q=(document.getElementById('srchQ')?.value||'').toLowerCase();
+  const cls=document.getElementById('srchCls')?.value||'';
+  const from=document.getElementById('srchFrom')?.value||'';
+  const to=document.getElementById('srchTo')?.value||'';
+  const filtered=R.filter(r=>{
+    if(q&&!r.studentName.toLowerCase().includes(q)&&!r.receiptNo.toLowerCase().includes(q)&&!r.studentId.toLowerCase().includes(q))return false;
+    if(cls&&!r.admClass.startsWith(cls))return false;
+    if(from&&r.recDate<from)return false;
+    if(to&&r.recDate>to)return false;
+    return true;
+  });
+  document.getElementById('recCount').textContent=filtered.length;
+  const tb=document.getElementById('recBody');
+  const em=document.getElementById('recEmpty');
+  if(!filtered.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=filtered.map(r=>`<tr><td><span class="rno">${r.receiptNo}</span></td><td>${r.studentName}</td><td style="font-size:.76rem;">${r.studentId}</td><td style="font-size:.76rem;">${r.admClass}</td><td style="font-size:.74rem;white-space:nowrap;">${fmtD(r.recDate)}</td><td class="amt-cell">₹${r.totalAmt.toFixed(2)}</td><td class="amt-cell">₹${r.totalPaid.toFixed(2)}</td><td><div style="display:flex;gap:4px;"><button class="icon-btn" onclick="viewRec('${r.receiptNo}')">🖨️</button><button class="icon-btn del" onclick="delRec('${r.receiptNo}')">🗑️</button></div></td></tr>`).join('');
+}
+function clearDateFilter(){
+  document.getElementById('srchFrom').value='';
+  document.getElementById('srchTo').value='';
+  renderRecTable();
+}
+function updateStats(p){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById(p+'total').textContent=R.length;
+  document.getElementById(p+'today').textContent=R.filter(r=>r.recDate===today).length;
+  const tot=R.reduce((s,r)=>s+r.totalPaid,0);
+  document.getElementById(p+'amt').textContent=tot>=1000?'₹'+(tot/1000).toFixed(1)+'k':'₹'+tot.toFixed(0);
+}
+function viewRec(no){const r=R.find(x=>x.receiptNo===no);if(r)showReceiptModal(r);}
+function delRec(no){
+  if(!confirm('Delete this record?'))return;
+  R=R.filter(r=>r.receiptNo!==no);
+  localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+  renderRecentTable();renderRecTable();updateStats('s_');updateStats('r_');
+  showToast('🗑️ Deleted.');
+}
+
+/* ═══ RECEIPT HTML ═══ */
+function fmtD(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${day.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`;}
+function n2w(n){
+  if(n===0)return'Zero';
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const c=n=>{if(n<20)return a[n];if(n<100)return b[Math.floor(n/10)]+(n%10?' '+a[n%10]:'');return a[Math.floor(n/100)]+' Hundred'+(n%100?' and '+c(n%100):'');};
+  let r='';
+  if(n>=100000){r+=c(Math.floor(n/100000))+' Lakh ';n%=100000;}
+  if(n>=1000){r+=c(Math.floor(n/1000))+' Thousand ';n%=1000;}
+  if(n>0)r+=c(n);
+  return r.trim()+' only';
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function buildCopy(r,label){
+  const feeRows=r.fees.map(f=>`<tr><td>${esc(f.name)}</td><td class="r">${f.amt.toFixed(2)}</td><td class="r">${f.paid.toFixed(2)}</td></tr>`).join('');
+  const pad=Math.max(0,6-r.fees.length);
+  const padRows=Array(pad).fill('<tr><td>&nbsp;</td><td></td><td></td></tr>').join('');
+  const logoHtml=getLogoHTML();
+  const wmHtml=getWmHTML();
+  return`<div class="rec-copy-wrap">${wmHtml}<div class="rec-copy-inner">
+  <div class="copy-tag">${label}</div>
+  <div class="rsh"><div class="rsl">${logoHtml}</div><div>
+    <div class="rsn">${esc(S.schoolName)}</div>
+    <div class="rss">(${esc(S.schoolType)})</div>
+    <div class="rsa">${esc(S.addr1)}</div>
+    <div class="rsa">${esc(S.addr2)}</div>
+  </div></div>
+  <div class="rm">
+    <div class="rm-l">
+      <div><strong>Receipt No.-</strong> ${r.receiptNo}</div>
+      <div><strong>Student's Name -</strong> ${esc(r.studentName)}</div>
+      <div><strong>ID -</strong> ${esc(r.studentId)},&nbsp;<strong>Class -</strong> ${esc(r.admClass)},&nbsp;<strong>Roll -</strong> ${r.rollNo||'—'}</div>
+    </div>
+    <div class="rm-r">
+      <div><strong>Date -</strong> ${fmtD(r.recDate)}</div>
+      <div><strong>Session -</strong> ${esc(r.session)}</div>
+    </div>
+  </div>
+  <table class="rft">
+    <thead><tr><th style="width:58%">PARTICULARS</th><th class="r" style="width:21%">AMOUNT</th><th class="r" style="width:21%">PAID</th></tr></thead>
+    <tbody>${feeRows}${padRows}</tbody>
+    <tfoot><tr>
+      <td><strong>Mode - ${r.payMode}</strong></td>
+      <td class="r"><strong>TOTAL &nbsp; ${r.totalAmt.toFixed(2)}</strong></td>
+      <td class="r"><strong>${r.totalPaid.toFixed(2)}</strong></td>
+    </tr></tfoot>
+  </table>
+  <div class="rf">
+    <div>(In Words - ${n2w(Math.round(r.totalPaid))})</div>
+    <div style="margin-top:2px;">(Generated By - ${esc(S.schoolName)})</div>
+    ${S.footerNote?`<div style="margin-top:2px;font-style:italic;">${esc(S.footerNote)}</div>`:''}
+    <div class="sig">${esc(S.sigLabel)}</div>
+  </div></div></div>`;
+}
+
+function showReceiptModal(r){
+  let html='';
+  if(S.showStudentCopy==='1') html+=buildCopy(r,'Student Copy');
+  if(S.showStudentCopy==='1'&&S.showOfficeCopy==='1') html+='<hr class="cut-line"/>';
+  if(S.showOfficeCopy==='1')  html+=buildCopy(r,'Office Copy');
+  document.getElementById('receiptContent').innerHTML=`<div class="receipt" id="printable">${html}</div>`;
+  document.getElementById('receiptModal').classList.add('open');
+}
+function closeModal(){document.getElementById('receiptModal').classList.remove('open');}
+function printReceipt(){
+  const c=document.getElementById('printable').outerHTML;
+  const w=window.open('','_blank','width=860,height=780');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    @page{size:A4 portrait;margin:8mm 10mm;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:12px;color:#000;background:#fff;}
+    .receipt{width:100%;}
+    .copy-tag{text-align:right;font-style:italic;font-size:11px;padding:4px 16px 0;color:#333;}
+    .rsh{display:flex;align-items:center;padding:7px 16px 5px;gap:12px;border-bottom:1.5px solid #000;}
+    .rsl{width:58px;height:58px;border:2px solid #8b1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:#fdf8f0;}
+    .rsn{font-size:19px;font-weight:900;letter-spacing:2px;text-transform:uppercase;}
+    .rss{font-size:9.5px;color:#222;margin-top:2px;}
+    .rsa{font-size:9px;color:#333;margin-top:1px;}
+    .rm{display:flex;justify-content:space-between;padding:6px 16px 4px;font-size:11px;border-bottom:1px solid #555;}
+    .rm-l,.rm-r{line-height:1.7;} .rm-r{text-align:right;}
+    .rft{width:100%;border-collapse:collapse;}
+    .rft thead th{background:#000;color:#fff;padding:5px 14px;font-size:10px;font-weight:700;text-align:left;letter-spacing:.5px;}
+    .rft thead th.r{text-align:right;width:80px;}
+    .rft tbody td{padding:4px 14px;border-bottom:1px solid #eee;font-size:10.5px;}
+    .rft tbody td.r{text-align:right;}
+    .rft tfoot td{padding:5px 14px;font-size:11px;border-top:2px solid #000;}
+    .rft tfoot td.r{text-align:right;font-weight:700;}
+    .rf{padding:5px 16px 10px;font-size:10.5px;color:#333;}
+    .rf .sig{text-align:right;font-style:italic;margin-top:6px;}
+    .cut-line{border:none;border-top:1.5px dashed #888;margin:6px 0;position:relative;page-break-inside:avoid;}
+    .cut-line::before{content:'✂';position:absolute;left:8px;top:-8px;font-size:13px;color:#888;background:#fff;padding:0 3px;}
+    .rec-copy-wrap{position:relative;overflow:hidden;page-break-inside:avoid;}
+    .wm-layer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden;}
+    .wm-layer img{max-width:55%;max-height:55%;object-fit:contain;}
+    .rec-copy-inner{position:relative;z-index:1;}
+  </style></head><body>${c}
+  <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),800);}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+/* ═══ DATA MANAGEMENT ═══ */
+function updateLastBackupInfo(){
+  const t=localStorage.getItem('rhs_lastBackup');
+  const el=document.getElementById('lastBackupInfo');
+  if(el) el.textContent=t?'✅ শেষ backup: '+t:'⚠️ এখনো কোনো backup নেওয়া হয়নি।';
+}
+function markBackup(){
+  const now=new Date().toLocaleString('en-IN');
+  localStorage.setItem('rhs_lastBackup',now);
+  updateLastBackupInfo();
+}
+
+/* ── Excel Export (summary, for viewing) ── */
+function exportRecords(){
+  if(!R.length){showToast('⚠️ কোনো record নেই।',true);return;}
+  const rows=[['Receipt No','Student Name','Student ID','Class','Section','Roll','Date','Session','Payment Mode','Total Amount','Total Paid']];
+  R.forEach(r=>rows.push([r.receiptNo,r.studentName,r.studentId,r.admClass,r.section||'',r.rollNo,fmtD(r.recDate),r.session,r.payMode,r.totalAmt,r.totalPaid]));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  // Column widths
+  ws['!cols']=[{wch:18},{wch:24},{wch:14},{wch:8},{wch:8},{wch:8},{wch:12},{wch:8},{wch:10},{wch:12},{wch:12}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Records');
+  // Fee-wise sheet
+  const feeRows=[['Receipt No','Student Name','Fee Name','Amount','Paid']];
+  R.forEach(r=>r.fees.forEach(f=>feeRows.push([r.receiptNo,r.studentName,f.name,f.amt,f.paid])));
+  const ws2=XLSX.utils.aoa_to_sheet(feeRows);
+  XLSX.utils.book_append_sheet(wb,ws2,'Fee Details');
+  XLSX.writeFile(wb,'RHS_Backup_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  markBackup();
+  showToast('✅ Excel exported successfully!');
+}
+
+/* ── JSON Export (full backup, restorable) ── */
+function exportJSON(){
+  if(!R.length){showToast('⚠️ কোনো record নেই।',true);return;}
+  const backup={
+    version:2,
+    exportedAt:new Date().toISOString(),
+    school:S.schoolName,
+    records:R,
+    counter:counter
+  };
+  const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='RHS_FullBackup_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  markBackup();
+  showToast('✅ Full JSON backup downloaded!');
+}
+
+/* ── JSON Import (restore from JSON backup) ── */
+function importJSON(input){
+  const f=input.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const backup=JSON.parse(ev.target.result);
+      if(!backup.records||!Array.isArray(backup.records)) throw new Error('Invalid format');
+      const incoming=backup.records;
+      const existingNos=new Set(R.map(r=>r.receiptNo));
+      const newRecs=incoming.filter(r=>!existingNos.has(r.receiptNo));
+      const dupCount=incoming.length-newRecs.length;
+      if(!newRecs.length&&incoming.length>0){
+        setImportStatus(`⚠️ সব ${dupCount}টি record আগে থেকেই আছে। কিছু import হয়নি।`,'#c0392b');
+        return;
+      }
+      const msg=dupCount>0
+        ?`${newRecs.length}টি নতুন record import হবে। ${dupCount}টি duplicate skip হবে।\n\nContinue?`
+        :`${newRecs.length}টি record import হবে। Continue?`;
+      if(!confirm(msg)){input.value='';return;}
+      R=[...R,...newRecs];
+      // Update counter if backup has higher counter
+      if(backup.counter&&backup.counter>counter){counter=backup.counter;S.counter=counter;saveS();}
+      localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+      renderRecentTable(); updateStats('s_');
+      setImportStatus(`✅ ${newRecs.length}টি record import সফল হয়েছে!${dupCount>0?' ('+dupCount+'টি duplicate skip)':''}`, '#155724');
+      showToast('✅ '+newRecs.length+' records imported!');
+    }catch(e){
+      setImportStatus('❌ File পড়তে সমস্যা হয়েছে। Valid JSON backup file দিন।','#c0392b');
+    }
+    input.value='';
+  };
+  reader.readAsText(f);
+}
+
+/* ── Excel Import (restore from Excel backup) ── */
+function importExcel(input){
+  const f=input.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      // Expect sheet named 'Records'
+      const wsName=wb.SheetNames.includes('Records')?'Records':wb.SheetNames[0];
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[wsName]);
+      if(!rows.length) throw new Error('Empty');
+
+      // Fee details sheet (optional)
+      const feeSheet=wb.SheetNames.includes('Fee Details')?XLSX.utils.sheet_to_json(wb.Sheets['Fee Details']):[];
+      const feeByReceipt={};
+      feeSheet.forEach(row=>{
+        const rno=String(row['Receipt No']||'').trim();
+        if(!rno)return;
+        if(!feeByReceipt[rno])feeByReceipt[rno]=[];
+        feeByReceipt[rno].push({name:String(row['Fee Name']||''),amt:parseFloat(row['Amount'])||0,paid:parseFloat(row['Paid'])||0});
+      });
+
+      const existingNos=new Set(R.map(r=>r.receiptNo));
+      const newRecs=[];
+      rows.forEach(row=>{
+        const rno=String(row['Receipt No']||'').trim();
+        if(!rno||existingNos.has(rno))return;
+        // Parse date back to yyyy-mm-dd
+        let recDate=String(row['Date']||'');
+        // Try to parse dd/mm/yyyy → yyyy-mm-dd
+        const dm=recDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if(dm) recDate=`${dm[3]}-${dm[2].padStart(2,'0')}-${dm[1].padStart(2,'0')}`;
+        const fees=feeByReceipt[rno]||[];
+        newRecs.push({
+          receiptNo:rno,
+          studentName:String(row['Student Name']||''),
+          studentId:String(row['Student ID']||''),
+          admClass:String(row['Class']||''),
+          section:String(row['Section']||''),
+          rollNo:String(row['Roll']||''),
+          recDate,
+          session:String(row['Session']||''),
+          payMode:String(row['Payment Mode']||'CASH'),
+          totalAmt:parseFloat(row['Total Amount'])||0,
+          totalPaid:parseFloat(row['Total Paid'])||0,
+          fees
+        });
+      });
+
+      const dupCount=rows.length-newRecs.length;
+      if(!newRecs.length){
+        setImportStatus(`⚠️ কোনো নতুন record পাওয়া যায়নি। ${dupCount}টি duplicate।`,'#c0392b');
+        return;
+      }
+      const msg=dupCount>0
+        ?`${newRecs.length}টি নতুন record import হবে। ${dupCount}টি duplicate skip হবে।\n\nContinue?`
+        :`${newRecs.length}টি record import হবে। Continue?`;
+      if(!confirm(msg)){input.value='';return;}
+      R=[...R,...newRecs];
+      localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+      renderRecentTable(); updateStats('s_');
+      setImportStatus(`✅ ${newRecs.length}টি record import সফল!${dupCount>0?' ('+dupCount+'টি skip)':''}`, '#155724');
+      showToast('✅ '+newRecs.length+' records imported from Excel!');
+    }catch(e){
+      setImportStatus('❌ File পড়তে সমস্যা। Valid backup Excel file দিন।','#c0392b');
+    }
+    input.value='';
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+function setImportStatus(msg,color){
+  const el=document.getElementById('importStatus');
+  if(el){el.textContent=msg;el.style.color=color||'inherit';}
+}
+
+function clearAllRecs(){
+  if(!confirm('Delete ALL receipt records?\n\nSettings will be kept. This cannot be undone.'))return;
+  R=[];localStorage.setItem('rhs_R',JSON.stringify(R)); pushToCloud();
+  renderRecentTable();updateStats('s_');showToast('🗑️ All records cleared.');
+}
+function fullReset(){
+  if(!confirm('FULL RESET: Delete everything and restore factory settings?\n\nThis cannot be undone.'))return;
+  localStorage.removeItem('rhs_R');localStorage.removeItem('rhs_S');
+  localStorage.removeItem('rhs_logo');localStorage.removeItem('rhs_wmImg');
+  localStorage.removeItem('rhs_lastBackup');
+  location.reload();
+}
+
+/* ═══ LOGO & WATERMARK ═══ */
+// stored separately in localStorage (base64 can be large)
+let logoData  = localStorage.getItem('rhs_logo')  || ''; // base64 or empty
+let wmImgData = localStorage.getItem('rhs_wmImg') || ''; // base64 or empty
+
+function handleLogoUpload(e){
+  const f=e.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    logoData=ev.target.result;
+    showLogoPreview(logoData);
+    showToast('✅ Logo loaded — click Save Logo to apply.');
+  };
+  reader.readAsDataURL(f);
+}
+function showLogoPreview(src){
+  // Settings preview
+  if(!src){
+    document.getElementById('logoImgPreview').style.display='none';
+    document.getElementById('logoEmoji').style.display='';
+  } else {
+    document.getElementById('logoImgPreview').src=src;
+    document.getElementById('logoImgPreview').style.display='block';
+    document.getElementById('logoEmoji').style.display='none';
+  }
+  // Header logo
+  const hdrImg=document.getElementById('hdrLogoImg');
+  const hdrEmoji=document.getElementById('hdrLogoEmoji');
+  if(src){hdrImg.src=src;hdrImg.style.display='block';hdrEmoji.style.display='none';}
+  else{hdrImg.style.display='none';hdrEmoji.style.display='';hdrEmoji.textContent=S.logoEmoji||'🏫';}
+  // Login screen logo
+  const liImg=document.getElementById('loginLogoImg');
+  const liEmoji=document.getElementById('loginLogoEmoji');
+  if(src){liImg.src=src;liImg.style.display='block';liEmoji.style.display='none';}
+  else{liImg.style.display='none';liEmoji.style.display='';liEmoji.textContent=S.logoEmoji||'🏫';}
+}
+function applyEmojiLogo(){
+  const v=document.getElementById('set_logoEmoji').value.trim();
+  if(!v)return;
+  logoData='';
+  S.logoEmoji=v; saveS();
+  // Settings preview
+  document.getElementById('logoEmoji').textContent=v;
+  document.getElementById('logoEmoji').style.display='';
+  document.getElementById('logoImgPreview').style.display='none';
+  // Header
+  document.getElementById('hdrLogoImg').style.display='none';
+  document.getElementById('hdrLogoEmoji').style.display='';
+  document.getElementById('hdrLogoEmoji').textContent=v;
+  // Login
+  document.getElementById('loginLogoImg').style.display='none';
+  document.getElementById('loginLogoEmoji').style.display='';
+  document.getElementById('loginLogoEmoji').textContent=v;
+  showToast('✅ Emoji logo applied!');
+}
+function clearLogo(){
+  logoData=''; S.logoEmoji='🏫'; saveS();
+  localStorage.removeItem('rhs_logo');
+  document.getElementById('set_logoEmoji').value='';
+  showLogoPreview('');
+  document.getElementById('logoEmoji').textContent='🏫';
+  showToast('↩ Logo reset to default.');
+}
+function saveLogo(){
+  if(logoData){
+    try{ localStorage.setItem('rhs_logo',logoData); }
+    catch(e){ showToast('⚠️ Image too large for browser storage. Try a smaller file.',true); return; }
+  }
+  S.logoEmoji=document.getElementById('set_logoEmoji').value.trim()||S.logoEmoji||'🏫';
+  saveS(); showToast('✅ Logo saved!');
+}
+
+function handleWmImageUpload(e){
+  const f=e.target.files[0]; if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    wmImgData=ev.target.result;
+    document.getElementById('wmImgStatus').style.display='block';
+    showToast('✅ Watermark image loaded — click Save Watermark.');
+  };
+  reader.readAsDataURL(f);
+}
+function toggleWmInputs(){
+  const t=document.getElementById('set_wmType').value;
+  document.querySelectorAll('.wm-text-opt').forEach(el=>el.style.display=t==='text'?'':'none');
+  document.querySelectorAll('.wm-img-opt').forEach(el=>el.style.display=t==='image'?'':'none');
+  document.getElementById('wmPreviewWrap').style.display=t!=='none'?'block':'none';
+}
+function previewWatermark(){
+  const t=document.getElementById('set_wmType').value;
+  const op=parseFloat(document.getElementById('set_wmOpacity').value)||0.07;
+  const pw=document.getElementById('wmPreviewText');
+  if(t==='text'){
+    const txt=document.getElementById('set_wmText').value||S.schoolName;
+    const fs=document.getElementById('set_wmFontSize').value||48;
+    const col=document.getElementById('set_wmColor').value||'#8b1a1a';
+    pw.innerHTML=`<span style="font-size:${Math.round(fs*0.4)}px;font-weight:900;color:${col};opacity:${op};transform:rotate(-25deg);white-space:nowrap;letter-spacing:1px;">${txt}</span>`;
+  } else if(t==='image'&&wmImgData){
+    pw.innerHTML=`<img src="${wmImgData}" style="max-width:55%;max-height:55%;object-fit:contain;opacity:${op};transform:rotate(-15deg);"/>`;
+  } else { pw.innerHTML=''; }
+  document.getElementById('wmPreviewWrap').style.display='block';
+}
+function saveWatermark(){
+  S.wmType=document.getElementById('set_wmType').value;
+  S.wmOpacity=parseFloat(document.getElementById('set_wmOpacity').value)||0.07;
+  S.wmText=document.getElementById('set_wmText').value||S.schoolName;
+  S.wmFontSize=parseInt(document.getElementById('set_wmFontSize').value)||48;
+  S.wmColor=document.getElementById('set_wmColor').value||'#8b1a1a';
+  if(wmImgData&&S.wmType==='image'){
+    try{ localStorage.setItem('rhs_wmImg',wmImgData); }
+    catch(e){ showToast('⚠️ Image too large. Try a smaller file.',true); return; }
+  }
+  saveS(); showToast('✅ Watermark saved!');
+}
+
+function loadBrandingUI(){
+  // re-read stored logo
+  logoData=localStorage.getItem('rhs_logo')||'';
+  wmImgData=localStorage.getItem('rhs_wmImg')||'';
+  showLogoPreview(logoData);
+  if(!logoData){ document.getElementById('logoEmoji').textContent=S.logoEmoji||'🏫'; }
+  document.getElementById('set_logoEmoji').value='';
+  // watermark
+  const wt=S.wmType||'none';
+  document.getElementById('set_wmType').value=wt;
+  document.getElementById('set_wmOpacity').value=S.wmOpacity||0.07;
+  document.getElementById('set_wmText').value=S.wmText||S.schoolName;
+  document.getElementById('set_wmFontSize').value=S.wmFontSize||48;
+  document.getElementById('set_wmColor').value=S.wmColor||'#8b1a1a';
+  toggleWmInputs();
+  if(wmImgData) document.getElementById('wmImgStatus').style.display='block';
+}
+
+function getLogoHTML(){
+  const ld=localStorage.getItem('rhs_logo')||'';
+  if(ld) return`<img src="${ld}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+  return S.logoEmoji||'🏫';
+}
+
+function getWmHTML(){
+  const t=S.wmType||'none'; if(t==='none')return'';
+  const op=S.wmOpacity||0.07;
+  if(t==='text'){
+    const txt=S.wmText||S.schoolName;
+    const fs=S.wmFontSize||48;
+    const col=S.wmColor||'#8b1a1a';
+    return`<div class="wm-layer"><span style="font-size:${fs}px;font-weight:900;color:${col};opacity:${op};transform:rotate(-25deg);white-space:nowrap;letter-spacing:2px;text-transform:uppercase;">${txt}</span></div>`;
+  }
+  if(t==='image'){
+    const wi=localStorage.getItem('rhs_wmImg')||'';
+    if(!wi)return'';
+    return`<div class="wm-layer"><img src="${wi}" style="max-width:55%;max-height:55%;object-fit:contain;opacity:${op};transform:rotate(-15deg);"/></div>`;
+  }
+  return'';
+}
+
+/* ═══ STUDENTS PAGE ═══ */
+function populateStuFilters(){
+  const clEl=document.getElementById('stu_cls');
+  const secEl=document.getElementById('stu_sec');
+  const classes=[...new Set(R.map(r=>r.admClass).filter(Boolean))].sort();
+  const sections=[...new Set(R.map(r=>r.section).filter(Boolean))].sort();
+  const curCls=clEl.value, curSec=secEl.value;
+  clEl.innerHTML='<option value="">All Classes</option>';
+  classes.forEach(c=>{const o=document.createElement('option');o.value=o.textContent=c;clEl.appendChild(o);});
+  secEl.innerHTML='<option value="">All Sections</option>';
+  sections.forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;secEl.appendChild(o);});
+  clEl.value=curCls; secEl.value=curSec;
+}
+
+function renderStudents(){
+  const srch=(document.getElementById('stu_search')?.value||'').toLowerCase();
+  const cls=document.getElementById('stu_cls')?.value||'';
+  const sec=document.getElementById('stu_sec')?.value||'';
+
+  const stuMap={};
+  R.forEach(r=>{
+    const key=r.studentId||r.studentName;
+    if(!stuMap[key])stuMap[key]={id:r.studentId,name:r.studentName,cls:r.admClass,section:r.section,roll:r.rollNo,session:r.session,receipts:[],totalAmt:0,totalPaid:0};
+    stuMap[key].receipts.push(r);
+    stuMap[key].totalAmt+=r.totalAmt; stuMap[key].totalPaid+=r.totalPaid;
+    stuMap[key].cls=r.admClass; stuMap[key].section=r.section; stuMap[key].roll=r.rollNo;
+  });
+
+  let students=Object.values(stuMap);
+  if(srch) students=students.filter(s=>s.name.toLowerCase().includes(srch)||(s.id||'').toLowerCase().includes(srch));
+  if(cls)  students=students.filter(s=>s.cls===cls);
+  if(sec)  students=students.filter(s=>s.section===sec);
+  students.sort((a,b)=>(a.cls||'').localeCompare(b.cls||'')||a.name.localeCompare(b.name));
+
+  const listEl=document.getElementById('stuList');
+  const emptyEl=document.getElementById('stuEmpty');
+  if(!students.length){listEl.innerHTML='';emptyEl.style.display='block';return;}
+  emptyEl.style.display='none';
+
+  listEl.innerHTML=`<div style="overflow-x:auto;">
+  <table class="rec-table">
+    <thead><tr>
+      <th>#</th><th>Name</th><th>Student ID</th><th>Class</th><th>Section</th><th>Roll</th>
+      <th style="text-align:center;">Receipts</th><th>Total Paid (₹)</th><th>Pending (₹)</th><th></th>
+    </tr></thead>
+    <tbody>${students.map((s,i)=>{
+      const pend=s.totalAmt-s.totalPaid;
+      return`<tr>
+        <td style="color:var(--muted);font-size:.78rem;">${i+1}</td>
+        <td><strong>${esc(s.name)}</strong></td>
+        <td style="font-family:'Courier New',monospace;font-size:.82rem;">${esc(s.id||'—')}</td>
+        <td>${esc(s.cls||'—')}</td>
+        <td>${esc(s.section||'—')}</td>
+        <td>${esc(s.roll||'—')}</td>
+        <td style="text-align:center;">${s.receipts.length}</td>
+        <td class="amt-cell">₹${s.totalPaid.toFixed(2)}</td>
+        <td style="font-weight:700;font-family:'Courier New',monospace;font-size:.77rem;color:${pend>0?'#c0392b':'var(--success)'};">₹${pend.toFixed(2)}</td>
+        <td><button class="btn-secondary" style="padding:4px 10px;font-size:.75rem;white-space:nowrap;" onclick="showStuDetail('${esc(s.id||s.name).replace(/'/g,"\\'")}')">📄 View</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>
+  <div style="margin-top:8px;font-size:.76rem;color:var(--muted);padding:0 4px;">মোট ${students.length} জন student পাওয়া গেছে।</div>`;
+}
+
+function clearStuFilters(){
+  document.getElementById('stu_search').value='';
+  document.getElementById('stu_cls').value='';
+  document.getElementById('stu_sec').value='';
+  renderStudents();
+}
+
+function showStuDetail(studentId){
+  const recs=R.filter(r=>(r.studentId||r.studentName)===studentId);
+  if(!recs.length)return;
+  const s=recs[0];
+  const totAmt=recs.reduce((x,r)=>x+r.totalAmt,0);
+  const totPaid=recs.reduce((x,r)=>x+r.totalPaid,0);
+  const totPend=totAmt-totPaid;
+
+  const feeMap={};
+  recs.forEach(r=>r.fees.forEach(f=>{
+    const k=f.name.trim();if(!k)return;
+    if(!feeMap[k])feeMap[k]={amt:0,paid:0};
+    feeMap[k].amt+=f.amt; feeMap[k].paid+=f.paid;
+  }));
+
+  document.getElementById('stuModalTitle').textContent='👤 '+s.studentName+' — Receipt History';
+  document.getElementById('stuModalBody').innerHTML=`
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;padding:12px 14px;background:#fdf8f0;border:1px solid var(--gold);border-radius:6px;font-size:.84rem;">
+      <span><strong>ID:</strong> ${esc(s.studentId)}</span>
+      <span><strong>Class:</strong> ${esc(s.admClass||'—')}</span>
+      <span><strong>Section:</strong> ${esc(s.section||'—')}</span>
+      <span><strong>Roll:</strong> ${esc(s.rollNo||'—')}</span>
+      <span><strong>Session:</strong> ${esc(s.session||'—')}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+      <div style="text-align:center;padding:10px;background:#f9f9f9;border-radius:5px;border:1px solid #ddd;">
+        <div style="font-size:1.1rem;font-weight:900;font-family:'Courier New',monospace;">₹${totAmt.toFixed(2)}</div>
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;">Total Amount</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:#f0f8f0;border-radius:5px;border:1px solid #b7dfc4;">
+        <div style="font-size:1.1rem;font-weight:900;font-family:'Courier New',monospace;color:var(--success);">₹${totPaid.toFixed(2)}</div>
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;">Total Paid</div>
+      </div>
+      <div style="text-align:center;padding:10px;background:${totPend>0?'#fff8f8':'#f0f8f0'};border-radius:5px;border:1px solid ${totPend>0?'#f5c6c6':'#b7dfc4'};">
+        <div style="font-size:1.1rem;font-weight:900;font-family:'Courier New',monospace;color:${totPend>0?'#c0392b':'var(--success)'};">₹${totPend.toFixed(2)}</div>
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;">Pending</div>
+      </div>
+    </div>
+    <div style="font-weight:700;font-size:.84rem;color:var(--red);margin-bottom:8px;">💰 Fee-wise Summary</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:16px;">
+      <thead><tr style="background:#f5edd8;">
+        <th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--gold);">Fee Type</th>
+        <th style="padding:6px 10px;text-align:right;border-bottom:2px solid var(--gold);">Amount</th>
+        <th style="padding:6px 10px;text-align:right;border-bottom:2px solid var(--gold);">Paid</th>
+        <th style="padding:6px 10px;text-align:right;border-bottom:2px solid var(--gold);">Pending</th>
+      </tr></thead>
+      <tbody>${Object.keys(feeMap).sort().map((k,i)=>{
+        const f=feeMap[k]; const p=f.amt-f.paid;
+        return`<tr style="background:${i%2===0?'#fff':'#fafafa'};">
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;">${esc(k)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">₹${f.amt.toFixed(2)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;color:var(--success);font-weight:700;">₹${f.paid.toFixed(2)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;color:${p>0?'#c0392b':'var(--success)'};font-weight:700;">₹${p.toFixed(2)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="font-weight:700;font-size:.84rem;color:var(--red);margin-bottom:8px;">🧾 All Receipts (${recs.length})</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <thead><tr style="background:#f5edd8;">
+        <th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--gold);">Receipt No</th>
+        <th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--gold);">Date</th>
+        <th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--gold);">Mode</th>
+        <th style="padding:6px 10px;text-align:right;border-bottom:2px solid var(--gold);">Amount</th>
+        <th style="padding:6px 10px;text-align:right;border-bottom:2px solid var(--gold);">Paid</th>
+        <th style="padding:6px 10px;border-bottom:2px solid var(--gold);"></th>
+      </tr></thead>
+      <tbody>${[...recs].sort((a,b)=>b.recDate.localeCompare(a.recDate)).map((r,i)=>`
+        <tr style="background:${i%2===0?'#fff':'#fafafa'};">
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;font-family:'Courier New',monospace;font-size:.78rem;font-weight:700;color:var(--red);">${esc(r.receiptNo)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;">${fmtD(r.recDate)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;">${esc(r.payMode)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;">₹${r.totalAmt.toFixed(2)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;text-align:right;color:var(--success);font-weight:700;">₹${r.totalPaid.toFixed(2)}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #eee;">
+            <button class="btn-secondary" style="padding:3px 9px;font-size:.72rem;" onclick="closeStuModal();showReceiptModal(R.find(x=>x.receiptNo==='${r.receiptNo.replace(/'/g,"\\'")}'))">🖨️ Print</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  document.getElementById('stuModal').style.display='block';
+}
+function closeStuModal(){document.getElementById('stuModal').style.display='none';}
+
+
+/* ═══ REPORT PAGE ═══ */
+function populateRptSession(){
+  const el=document.getElementById('rpt_session');if(!el)return;
+  const sessions=[...new Set(R.map(r=>r.session).filter(Boolean))].sort().reverse();
+  const cur=el.value; el.innerHTML='<option value="">All Sessions</option>';
+  sessions.forEach(s=>{const o=document.createElement('option');o.value=o.textContent=s;el.appendChild(o);});
+  el.value=cur;
+}
+function generateReport(){
+  const from=document.getElementById('rpt_from').value;
+  const to=document.getElementById('rpt_to').value;
+  const sess=document.getElementById('rpt_session').value;
+  const filtered=R.filter(r=>{
+    if(from&&r.recDate<from)return false;
+    if(to&&r.recDate>to)return false;
+    if(sess&&r.session!==sess)return false;
+    return true;
+  });
+  const empty=!filtered.length;
+  document.getElementById('rptEmpty').style.display=empty?'block':'none';
+  document.getElementById('rptTablePanel').style.display=empty?'none':'block';
+  document.getElementById('rptFeePanel').style.display=empty?'none':'block';
+  document.getElementById('rptPendingPanel').style.display=empty?'none':'block';
+  if(empty){
+    ['rpt_receipts','rpt_students','rpt_total','rpt_paid'].forEach(id=>document.getElementById(id).textContent='0');
+    return;
+  }
+  const uniqStudents=new Set(filtered.map(r=>r.studentId)).size;
+  const totAmt=filtered.reduce((s,r)=>s+r.totalAmt,0);
+  const totPaid=filtered.reduce((s,r)=>s+r.totalPaid,0);
+  const totPend=totAmt-totPaid;
+  document.getElementById('rpt_receipts').textContent=filtered.length;
+  document.getElementById('rpt_students').textContent=uniqStudents;
+  document.getElementById('rpt_total').textContent='₹'+totAmt.toFixed(0);
+  document.getElementById('rpt_paid').textContent='₹'+totPaid.toFixed(0);
+
+  const rangeLabel=(from||to)?((from?fmtD(from):'Start')+' → '+(to?fmtD(to):'Today')):'All time';
+  document.getElementById('rptRange').textContent=rangeLabel+(sess?' | Session: '+sess:'');
+
+  // ── Fee-wise map ──
+  const feeMap={};
+  filtered.forEach(r=>r.fees.forEach(f=>{
+    const k=f.name.trim(); if(!k)return;
+    if(!feeMap[k])feeMap[k]={amt:0,paid:0,count:0};
+    feeMap[k].amt+=f.amt; feeMap[k].paid+=f.paid; feeMap[k].count++;
+  }));
+  const feeTypes=Object.keys(feeMap).sort();
+
+  // Fee cards with progress bars
+  const cardsEl=document.getElementById('rptFeeCards');
+  cardsEl.innerHTML=feeTypes.map(k=>{
+    const d=feeMap[k];
+    const pend=d.amt-d.paid;
+    const pct=d.amt>0?Math.round(d.paid/d.amt*100):0;
+    const barColor=pct>=100?'#2d6a4f':pct>=75?'#c9973a':pct>=50?'#e67e22':'#c0392b';
+    return`<div class="fee-card">
+      <div class="fee-card-name">📌 ${esc(k)}</div>
+      <div class="fee-card-nums">
+        <span>Total: <span class="fee-card-total">₹${d.amt.toFixed(2)}</span></span>
+        <span>Paid: <span class="fee-card-paid">₹${d.paid.toFixed(2)}</span></span>
+        <span>Pending: <span class="fee-card-pend">₹${pend.toFixed(2)}</span></span>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${barColor};"></div></div>
+      <div class="fee-card-pct">${pct}% collected &nbsp;·&nbsp; ${d.count} receipts</div>
+    </div>`;
+  }).join('');
+
+  // Grand total row
+  const overallPct=totAmt>0?Math.round(totPaid/totAmt*100):0;
+  document.getElementById('rptGrandTotal').innerHTML=`
+    <div>
+      <div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Grand Total</div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;">
+        <span style="font-size:.9rem;">Total: <strong style="font-family:'Courier New',monospace;color:var(--ink);">₹${totAmt.toFixed(2)}</strong></span>
+        <span style="font-size:.9rem;">Paid: <strong style="font-family:'Courier New',monospace;color:var(--success);">₹${totPaid.toFixed(2)}</strong></span>
+        <span style="font-size:.9rem;">Pending: <strong style="font-family:'Courier New',monospace;color:#c0392b;">₹${totPend.toFixed(2)}</strong></span>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:1.6rem;font-weight:900;color:${overallPct>=90?'var(--success)':overallPct>=60?'#c9973a':'#c0392b'};">${overallPct}%</div>
+      <div style="font-size:.68rem;color:var(--muted);">Overall collected</div>
+    </div>`;
+
+  // ── Class-wise table ──
+  const classMap={};
+  filtered.forEach(r=>{
+    const cl=r.admClass||'Unknown';
+    if(!classMap[cl])classMap[cl]={receipts:0,students:new Set(),amt:0,paid:0};
+    classMap[cl].receipts++;classMap[cl].students.add(r.studentId);
+    classMap[cl].amt+=r.totalAmt;classMap[cl].paid+=r.totalPaid;
+  });
+  const classes=Object.keys(classMap).sort();
+  document.getElementById('rptBody').innerHTML=classes.map(cl=>{
+    const d=classMap[cl];
+    const pend=d.amt-d.paid;
+    const pct=d.amt>0?Math.round(d.paid/d.amt*100):0;
+    const barColor=pct>=100?'#2d6a4f':pct>=75?'#c9973a':'#c0392b';
+    return`<tr>
+      <td><strong>${cl}</strong></td>
+      <td>${d.receipts}</td><td>${d.students.size}</td>
+      <td class="amt-cell">₹${d.amt.toFixed(2)}</td>
+      <td class="amt-cell">₹${d.paid.toFixed(2)}</td>
+      <td style="color:${pend>0?'#c0392b':'var(--success)'};font-weight:700;font-family:'Courier New',monospace;font-size:.77rem;">₹${pend.toFixed(2)}</td>
+      <td style="min-width:100px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;background:#f0f0f0;border-radius:10px;height:7px;overflow:hidden;">
+            <div style="width:${pct}%;height:7px;background:${barColor};border-radius:10px;"></div>
+          </div>
+          <span style="font-size:.72rem;font-weight:700;color:${barColor};white-space:nowrap;">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rptFoot').innerHTML=`<tr style="background:#f5edd8;font-weight:700;">
+    <td>TOTAL</td><td>${filtered.length}</td><td>${uniqStudents}</td>
+    <td class="amt-cell">₹${totAmt.toFixed(2)}</td>
+    <td class="amt-cell">₹${totPaid.toFixed(2)}</td>
+    <td style="color:${totPend>0?'#c0392b':'var(--success)'};font-weight:700;font-family:'Courier New',monospace;font-size:.77rem;">₹${totPend.toFixed(2)}</td>
+    <td style="font-weight:700;color:${overallPct>=90?'var(--success)':overallPct>=60?'#c9973a':'#c0392b'};">${overallPct}%</td>
+  </tr>`;
+
+  // ── Fee-wise Pending by Class ──
+  // classFeePending[class][feeName] = {amt, paid}
+  const cfp={};
+  filtered.forEach(r=>{
+    const cl=r.admClass||'Unknown';
+    if(!cfp[cl])cfp[cl]={};
+    r.fees.forEach(f=>{
+      const k=f.name.trim(); if(!k)return;
+      if(!cfp[cl][k])cfp[cl][k]={amt:0,paid:0};
+      cfp[cl][k].amt+=f.amt; cfp[cl][k].paid+=f.paid;
+    });
+  });
+  const pendingHtml=Object.keys(cfp).sort().map(cl=>{
+    const fees=cfp[cl];
+    const pendingFees=Object.keys(fees).filter(k=>fees[k].paid<fees[k].amt);
+    if(!pendingFees.length)return`<div style="margin-bottom:10px;padding:8px 12px;background:#f0f8f0;border-radius:4px;border-left:3px solid var(--success);font-size:.82rem;"><strong>${cl}</strong> — <span style="color:var(--success);">✅ সব fee সম্পূর্ণ</span></div>`;
+    return`<div style="margin-bottom:12px;">
+      <div style="font-weight:700;font-size:.86rem;color:var(--red);margin-bottom:5px;border-bottom:1px solid #eee;padding-bottom:4px;">📚 ${cl}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;">
+        ${pendingFees.map(k=>{
+          const f=fees[k]; const pend=f.amt-f.paid;
+          const pct=f.amt>0?Math.round(f.paid/f.amt*100):0;
+          return`<div style="background:#fff8f8;border:1px solid #fdd;border-radius:4px;padding:7px 10px;font-size:.78rem;">
+            <div style="font-weight:700;margin-bottom:2px;">${esc(k)}</div>
+            <div style="color:#c0392b;">বাকি: ₹${pend.toFixed(2)} &nbsp;(${100-pct}% pending)</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('rptPendingBody').innerHTML=pendingHtml||'<p style="color:var(--muted);font-style:italic;">No pending fees found.</p>';
+}
+
+function printFeeReport(){
+  const from=document.getElementById('rpt_from').value;
+  const to=document.getElementById('rpt_to').value;
+  const sess=document.getElementById('rpt_session').value;
+  const filtered=R.filter(r=>{
+    if(from&&r.recDate<from)return false;
+    if(to&&r.recDate>to)return false;
+    if(sess&&r.session!==sess)return false;
+    return true;
+  });
+  if(!filtered.length){showToast('⚠️ কোনো data নেই।',true);return;}
+
+  const feeMap={};
+  filtered.forEach(r=>r.fees.forEach(f=>{
+    const k=f.name.trim();if(!k)return;
+    if(!feeMap[k])feeMap[k]={amt:0,paid:0,count:0};
+    feeMap[k].amt+=f.amt;feeMap[k].paid+=f.paid;feeMap[k].count++;
+  }));
+  const feeTypes=Object.keys(feeMap).sort();
+  const totAmt=filtered.reduce((s,r)=>s+r.totalAmt,0);
+  const totPaid=filtered.reduce((s,r)=>s+r.totalPaid,0);
+  const totPend=totAmt-totPaid;
+  const overallPct=totAmt>0?Math.round(totPaid/totAmt*100):0;
+  const rangeLabel=(from||to)?((from?fmtD(from):'Start')+' → '+(to?fmtD(to):'Today')):'All time';
+  const uniqStudents=new Set(filtered.map(r=>r.studentId)).size;
+  const ld=localStorage.getItem('rhs_logo')||'';
+  const logoHtmlPrint=ld
+    ?`<img src="${ld}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`
+    :(S.logoEmoji||'🏫');
+
+  // Class-wise map for summary table
+  const classMap={};
+  filtered.forEach(r=>{
+    const cl=r.admClass||'Unknown';
+    if(!classMap[cl])classMap[cl]={receipts:0,students:new Set(),amt:0,paid:0};
+    classMap[cl].receipts++;classMap[cl].students.add(r.studentId);
+    classMap[cl].amt+=r.totalAmt;classMap[cl].paid+=r.totalPaid;
+  });
+
+  const feeRows=feeTypes.map((k,i)=>{
+    const d=feeMap[k];
+    const pend=d.amt-d.paid;
+    const pct=d.amt>0?Math.round(d.paid/d.amt*100):0;
+    const barColor=pct>=100?'#2d6a4f':pct>=75?'#c9973a':pct>=50?'#e67e22':'#c0392b';
+    return`<tr style="background:${i%2===0?'#fff':'#fafafa'};">
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;font-weight:600;">${esc(k)}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;text-align:right;">₹${d.amt.toFixed(2)}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;text-align:right;color:#2d6a4f;font-weight:700;">₹${d.paid.toFixed(2)}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;text-align:right;color:${pend>0?'#c0392b':'#2d6a4f'};font-weight:700;">₹${pend.toFixed(2)}</td>
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;width:120px;">
+        <div style="background:#eee;border-radius:6px;height:8px;overflow:hidden;margin-bottom:2px;">
+          <div style="width:${pct}%;height:8px;background:${barColor};border-radius:6px;"></div>
+        </div>
+        <div style="font-size:9px;text-align:right;color:${barColor};font-weight:700;">${pct}%</div>
+      </td>
+      <td style="padding:7px 12px;border-bottom:1px solid #eee;text-align:center;font-size:10px;">${d.count}</td>
+    </tr>`;
+  }).join('');
+
+  const classRows=Object.keys(classMap).sort().map((cl,i)=>{
+    const d=classMap[cl];
+    const pend=d.amt-d.paid;
+    const pct=d.amt>0?Math.round(d.paid/d.amt*100):0;
+    return`<tr style="background:${i%2===0?'#fff':'#fafafa'};">
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:700;">${cl}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;">${d.receipts}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;">${d.students.size}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;">₹${d.amt.toFixed(2)}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:#2d6a4f;font-weight:700;">₹${d.paid.toFixed(2)}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;color:${pend>0?'#c0392b':'#2d6a4f'};font-weight:700;">₹${pend.toFixed(2)}</td>
+      <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:center;font-weight:700;color:${pct>=75?'#2d6a4f':'#c0392b'};">${pct}%</td>
+    </tr>`;
+  }).join('');
+
+  const printDate=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  const w=window.open('','_blank','width=900,height=800');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    @page{size:A4 portrait;margin:12mm 14mm;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;font-size:11px;color:#000;background:#fff;}
+    h2{font-size:14px;font-weight:900;margin:0;}
+    h3{font-size:11px;font-weight:700;margin:10px 0 6px;color:#8b1a1a;border-bottom:1px solid #ddd;padding-bottom:4px;}
+    table{width:100%;border-collapse:collapse;}
+    thead th{background:#000;color:#fff;padding:6px 10px;text-align:left;font-size:9.5px;letter-spacing:.4px;}
+    thead th.r{text-align:right;} thead th.c{text-align:center;}
+    .hdr{display:flex;align-items:center;gap:12px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:12px;}
+    .logo{width:56px;height:56px;border:2px solid #8b1a1a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:#fdf8f0;overflow:hidden;}
+    .sname{font-size:17px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;}
+    .stype{font-size:9px;color:#444;margin-top:2px;}
+    .saddr{font-size:8.5px;color:#555;margin-top:1px;}
+    .rpt-title{font-size:12px;font-weight:700;text-align:center;margin:0 0 4px;letter-spacing:.5px;color:#8b1a1a;}
+    .rpt-sub{text-align:center;font-size:9px;color:#666;margin-bottom:12px;}
+    .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+    .s-card{border:1px solid #ddd;border-radius:4px;padding:7px 10px;text-align:center;}
+    .s-val{font-size:13px;font-weight:900;color:#8b1a1a;font-family:'Courier New',monospace;}
+    .s-lbl{font-size:8px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-top:1px;}
+    .grand-box{border:1.5px solid #c9973a;border-radius:5px;padding:10px 14px;margin:10px 0;background:#fdf8f0;display:flex;justify-content:space-between;align-items:center;}
+    .g-items{display:flex;gap:18px;}
+    .g-pct{font-size:22px;font-weight:900;text-align:right;}
+    .pg{page-break-before:always;}
+    .no-break{page-break-inside:avoid;}
+  </style></head><body>
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="logo">${logoHtmlPrint}</div>
+    <div>
+      <div class="sname">${esc(S.schoolName)}</div>
+      <div class="stype">(${esc(S.schoolType)})</div>
+      <div class="saddr">${esc(S.addr1)}</div>
+      <div class="saddr">${esc(S.addr2)}</div>
+    </div>
+  </div>
+
+  <div class="rpt-title">FEE COLLECTION REPORT</div>
+  <div class="rpt-sub">Period: ${rangeLabel}${sess?' &nbsp;|&nbsp; Session: '+sess:''} &nbsp;|&nbsp; Generated: ${printDate} &nbsp;|&nbsp; By: ${esc(currentUser?.name||'—')}</div>
+
+  <!-- SUMMARY -->
+  <div class="summary-grid">
+    <div class="s-card"><div class="s-val">${filtered.length}</div><div class="s-lbl">Total Receipts</div></div>
+    <div class="s-card"><div class="s-val">${uniqStudents}</div><div class="s-lbl">Students</div></div>
+    <div class="s-card"><div class="s-val">₹${totAmt.toFixed(0)}</div><div class="s-lbl">Total Amount</div></div>
+    <div class="s-card"><div class="s-val">₹${totPaid.toFixed(0)}</div><div class="s-lbl">Amount Paid</div></div>
+  </div>
+
+  <!-- FEE-WISE TABLE -->
+  <h3>💰 Fee-wise Collection Summary</h3>
+  <table class="no-break">
+    <thead><tr>
+      <th style="width:32%;">Fee Type</th>
+      <th class="r" style="width:14%;">Total Amt (₹)</th>
+      <th class="r" style="width:14%;">Paid (₹)</th>
+      <th class="r" style="width:14%;">Pending (₹)</th>
+      <th style="width:16%;text-align:center;">Collection %</th>
+      <th class="c" style="width:10%;">Receipts</th>
+    </tr></thead>
+    <tbody>${feeRows}</tbody>
+    <tfoot><tr style="background:#f5edd8;font-weight:700;border-top:2px solid #000;">
+      <td style="padding:7px 12px;">GRAND TOTAL</td>
+      <td style="padding:7px 12px;text-align:right;">₹${totAmt.toFixed(2)}</td>
+      <td style="padding:7px 12px;text-align:right;color:#2d6a4f;">₹${totPaid.toFixed(2)}</td>
+      <td style="padding:7px 12px;text-align:right;color:${totPend>0?'#c0392b':'#2d6a4f'};">₹${totPend.toFixed(2)}</td>
+      <td style="padding:7px 12px;text-align:center;font-size:12px;font-weight:900;color:${overallPct>=90?'#2d6a4f':overallPct>=60?'#c9973a':'#c0392b'};">${overallPct}%</td>
+      <td style="padding:7px 12px;text-align:center;">${filtered.length}</td>
+    </tfoot>
+  </table>
+
+  <!-- GRAND TOTAL BOX -->
+  <div class="grand-box">
+    <div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#888;letter-spacing:.4px;margin-bottom:5px;">Overall Summary</div>
+      <div class="g-items">
+        <span>মোট: <strong>₹${totAmt.toFixed(2)}</strong></span>
+        <span style="color:#2d6a4f;">Paid: <strong>₹${totPaid.toFixed(2)}</strong></span>
+        <span style="color:#c0392b;">Pending: <strong>₹${totPend.toFixed(2)}</strong></span>
+      </div>
+    </div>
+    <div>
+      <div class="g-pct" style="color:${overallPct>=90?'#2d6a4f':overallPct>=60?'#c9973a':'#c0392b'};">${overallPct}%</div>
+      <div style="font-size:8px;color:#888;text-align:right;">collected</div>
+    </div>
+  </div>
+
+  <!-- CLASS-WISE TABLE -->
+  <h3 class="pg">📋 Class-wise Breakdown</h3>
+  <table class="no-break">
+    <thead><tr>
+      <th style="width:18%;">Class</th>
+      <th class="c" style="width:11%;">Receipts</th>
+      <th class="c" style="width:11%;">Students</th>
+      <th class="r" style="width:15%;">Total Amt (₹)</th>
+      <th class="r" style="width:15%;">Paid (₹)</th>
+      <th class="r" style="width:15%;">Pending (₹)</th>
+      <th class="c" style="width:15%;">Collection %</th>
+    </tr></thead>
+    <tbody>${classRows}</tbody>
+    <tfoot><tr style="background:#f5edd8;font-weight:700;border-top:2px solid #000;">
+      <td style="padding:6px 12px;">TOTAL</td>
+      <td style="padding:6px 12px;text-align:center;">${filtered.length}</td>
+      <td style="padding:6px 12px;text-align:center;">${uniqStudents}</td>
+      <td style="padding:6px 12px;text-align:right;">₹${totAmt.toFixed(2)}</td>
+      <td style="padding:6px 12px;text-align:right;color:#2d6a4f;">₹${totPaid.toFixed(2)}</td>
+      <td style="padding:6px 12px;text-align:right;color:${totPend>0?'#c0392b':'#2d6a4f'};">₹${totPend.toFixed(2)}</td>
+      <td style="padding:6px 12px;text-align:center;font-weight:900;color:${overallPct>=90?'#2d6a4f':overallPct>=60?'#c9973a':'#c0392b'};">${overallPct}%</td>
+    </tfoot>
+  </table>
+
+  <div style="margin-top:28px;display:flex;justify-content:space-between;font-size:10px;color:#888;border-top:1px solid #ddd;padding-top:8px;">
+    <span>${esc(S.schoolName)} — Fee Collection Report</span>
+    <span>Printed: ${printDate}</span>
+  </div>
+
+  <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),800);}<\/script>
+  </body></html>`);
+  w.document.close();
+}
+function exportReport(){
+  const from=document.getElementById('rpt_from').value;
+  const to=document.getElementById('rpt_to').value;
+  const sess=document.getElementById('rpt_session').value;
+  const filtered=R.filter(r=>{
+    if(from&&r.recDate<from)return false;
+    if(to&&r.recDate>to)return false;
+    if(sess&&r.session!==sess)return false;
+    return true;
+  });
+  if(!filtered.length){showToast('⚠️ No data to export.',true);return;}
+  // Sheet 1: records
+  const rows1=[['Receipt No','Student Name','ID','Class','Roll','Date','Session','Mode','Amount','Paid']];
+  filtered.forEach(r=>rows1.push([r.receiptNo,r.studentName,r.studentId,r.admClass,r.rollNo,fmtD(r.recDate),r.session,r.payMode,r.totalAmt,r.totalPaid]));
+  // Sheet 2: class summary
+  const classMap={};
+  filtered.forEach(r=>{
+    const cl=r.admClass||'Unknown';
+    if(!classMap[cl])classMap[cl]={receipts:0,students:new Set(),amt:0,paid:0};
+    classMap[cl].receipts++;classMap[cl].students.add(r.studentId);
+    classMap[cl].amt+=r.totalAmt;classMap[cl].paid+=r.totalPaid;
+  });
+  const rows2=[['Class','Receipts','Students','Total Amount','Total Paid','Pending']];
+  Object.keys(classMap).sort().forEach(cl=>{
+    const d=classMap[cl];
+    rows2.push([cl,d.receipts,d.students.size,d.amt,d.paid,d.amt-d.paid]);
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows1),'All Records');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows2),'Class Summary');
+  XLSX.writeFile(wb,'RHS_Report_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  showToast('✅ Report exported!');
+}
+
+/* ═══ TOAST ═══ */
+function showToast(msg,warn=false){
+  const t=document.getElementById('toast');
+  t.style.background=warn?'#c0392b':'#2d6a4f';
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+/* ═══ BOOT ═══ */
+(function boot(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('f_date').value=today;
+  document.getElementById('f_session').value=S.session;
+
+  // School name in header and login screen
+  document.getElementById('hdrName').textContent=S.schoolName;
+  document.getElementById('loginSchoolName').textContent=S.schoolName;
+
+  // Sync logo everywhere on load
+  const ld=localStorage.getItem('rhs_logo')||'';
+  const emoji=S.logoEmoji||'🏫';
+  if(ld){
+    // header
+    document.getElementById('hdrLogoImg').src=ld;
+    document.getElementById('hdrLogoImg').style.display='block';
+    document.getElementById('hdrLogoEmoji').style.display='none';
+    // login
+    document.getElementById('loginLogoImg').src=ld;
+    document.getElementById('loginLogoImg').style.display='block';
+    document.getElementById('loginLogoEmoji').style.display='none';
+  } else {
+    document.getElementById('hdrLogoEmoji').textContent=emoji;
+    document.getElementById('loginLogoEmoji').textContent=emoji;
+  }
+
+  // Default report: current month
+  const now=new Date();
+  const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+  if(document.getElementById('rpt_from'))document.getElementById('rpt_from').value=firstDay;
+  if(document.getElementById('rpt_to'))document.getElementById('rpt_to').value=today;
+
+  populateDropdowns(); initFeeRows(); updateStats('s_'); renderRecentTable();
+  if(xlStudents.length) renderXlList(); // restore persisted student list
+
+  // Sync from cloud on load
+  syncFromCloud().then(()=>{
+    populateDropdowns(); updateStats('s_'); renderRecentTable();
+    if(xlStudents.length) renderXlList();
+  }).catch(()=>{});
+
+  // Show login screen (hide main app content)
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginUser').focus();
+})();
+</script>
+</body>
+</html>
