@@ -47,29 +47,3 @@ app.get('/health', (_, res) => res.json({ status: 'ok' }));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server on port ${PORT}`));
-```
-4. **Commit changes**
-
----
-
-**frontend/index.html** তৈরি করুন:
-1. **Add file** → **Create new file**
-2. Name: `frontend/index.html`
-3. ZIP-এর `deploy/frontend/index.html` file-এর content paste করুন
-4. **Commit changes**
-
----
-
-### ③ Render Deploy
-
-Render → **New Web Service** → এই repo → Settings:
-
-| Field | Value |
-|-------|-------|
-| Root Directory | `backend` |
-| Build Command | `npm install` |
-| Start Command | `npm start` |
-
-Environment Variable:
-```
-MONGODB_URI = mongodb+srv://tmahata0100_db_user:sjI4p9mBZucFQ7kY@cluster0.jbqjbsg.mongodb.net/wbchse?retryWrites=true&w=majority&appName=Cluster0
