@@ -381,6 +381,22 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
 .cert-preview{background:#fff;color:#000;padding:20mm;width:190mm;margin:0 auto;
   border:3px double #000;font-family:'Times New Roman',serif;position:relative}
 
+/* ── DASHBOARD ── */
+.dash-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+.dash-charts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.chart-card{background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)}
+.chart-lbl{font-size:9px;font-weight:700;color:#D4A017;margin-bottom:6px;letter-spacing:.8px;text-transform:uppercase}
+.dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:768px){
+  .dash-stats{grid-template-columns:repeat(3,1fr)!important}
+  .dash-charts{grid-template-columns:repeat(2,1fr)!important}
+  .dash-bottom{grid-template-columns:1fr!important}
+}
+@media(max-width:480px){
+  .dash-stats{grid-template-columns:repeat(2,1fr)!important}
+  .dash-charts{grid-template-columns:1fr!important}
+}
+
 /* ── UPLOAD ZONE ── *//* ── UPLOAD ZONE ── */
 .upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;
   cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
@@ -509,29 +525,31 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
 
 <!-- ═══════ DASHBOARD ═══════ -->
 <div class="sec active" id="sec-dashboard">
-  <div class="srow" id="dashStats"></div>
-  <!-- CHARTS ROW — 4 compact glossy cards -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
-    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)">
-      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📊 Pass / Fail</div>
-      <canvas id="chartPF" height="75"></canvas>
+  <!-- STATS -->
+  <div id="dashStats" class="dash-stats"></div>
+
+  <!-- CHARTS — 2x2 glossy grid -->
+  <div class="dash-charts">
+    <div class="chart-card">
+      <div class="chart-lbl">📊 Pass / Fail</div>
+      <canvas id="chartPF" height="90"></canvas>
     </div>
-    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)">
-      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">🎓 Grade Dist.</div>
-      <canvas id="chartGrade" height="75"></canvas>
+    <div class="chart-card">
+      <div class="chart-lbl">🎓 Grade Dist.</div>
+      <canvas id="chartGrade" height="90"></canvas>
     </div>
-    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)">
-      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📚 Stream Pass%</div>
-      <canvas id="chartStream" height="75"></canvas>
+    <div class="chart-card">
+      <div class="chart-lbl">📚 Stream Pass%</div>
+      <canvas id="chartStream" height="90"></canvas>
     </div>
-    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06)">
-      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📖 Subject P/F</div>
-      <canvas id="chartSubject" height="75"></canvas>
+    <div class="chart-card">
+      <div class="chart-lbl">📖 Subject P/F</div>
+      <canvas id="chartSubject" height="90"></canvas>
     </div>
   </div>
 
-  <!-- Top 3 + Incomplete row -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+  <!-- Top 3 + Incomplete -->
+  <div class="dash-bottom">
     <div class="card" style="padding:14px">
       <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:.5px">🏆 TOP 3 STUDENTS</div>
       <div id="dashTop3">—</div>
