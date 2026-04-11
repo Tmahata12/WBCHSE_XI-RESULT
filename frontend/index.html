@@ -3,13 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0F1923">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="WBCHSE Result">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nO2deXgcx3mn3+ruuYDBDIDBNQAIggQJkrp46LAsyZcs25J8xY4U2+vEsezdbLJOvEfi3SQ+nnXyZB1HG1vOJtlnY8e5VlnnceLEdhLJkeTYkm3JsmTrMEWRBAiQxI0BMJgBMGdX7R9N0iAJEFf3dM+g338kzgy6a3rqq/qq6vd9n8Ah2tuvq89pi68SiCMKtU8ItQ8lWoEmoB4IOnVvn6okD8wDaeAsgueVEs9rqvxEemJ42KmbCjsvVteyMxkMBN4D6p1KcBOKgJ3X99mmKF5A8HWlq7/IjJw6aeelbTGAxo6+1ynBrwFvAnQ7runjswISeBghH5gfG3rEjgtuyQDinbvvEEp8UsEtdjTGx2fdCP4VxUfmxwef3dplNkGiu7+rLM3PoPiZrdzcx2eLSOBPAyXjV1Op49nNXGDDBhDr7Hu3UPwfILaZG/r42I8aEujvT4+ffHyjf7l+f723NxyPJP5QwKeA0EZv5OPjHKIJ1PsiDYmF/MLskxv6y/V8qKlpd1yGxT8Ar91M83x8KoYSfzafCP0iR48W1/PxNQ0g2t7XpmvqGyAObb11Pj7OI4T4x3Qd9zAwUFjzs1d60xr5+Zbf+X2qkIfmQ+Y7GR7OX+lD2qrv9PaGLbfH7/w+Vcld8aL+l1ypj3OFRXA8kvgj4KftbpWPTwW5OtyQCBUWZh9b7QMrGkCss+/d53Z7fHyqndtCsaYThezcj1d687I1QKK7v6tsmi/h7/P71A4ZpH54fvLEqUvfuMw/KkvzM/id36e2iKGbD7KCx3PRC/HO3XegxKcr1iwfn8rRHYomJgsLsz9Y/uJFLlBjsu87Cm6tbLt8fCrGnCnZvzA5OHX+hQsuUGNH3+v8zu9T4zQZgo8vf+GCAZzT8/v41DRK8G8T3f1d5/+tgRXJBbzRtVb5+FSOcMmUFwZ7ARDv6Ps1BPe716baJKArggEI6GDoioAu0DSFLkDT1EWflVJgKuu/JVNRNgUlE4olKJm2Rq76CObryXWOjY0tGQBC8FNqrT/yWREhIBxU1AUV0TBEQopwUBEOgK5B2YSSCeWyoCQVUkLZFIDg/DMXWJ+N6ApNUwQ0MAx5znDAlJAvQb4oyBUEC3lYKgryRYHyf7iNo4gvEH4H8KBobb06WgzkZ/0A9vWhaxCLKBoiili9JBq2OvBiQbBUECwVrI6aL0GhBKbc2uit64pQAMIBCAcUdSGoCynqQwoFZHOQXdLI5ASZnEBKW77mduDh+fHBu0QsuedNAvWw263xMpGgoimqaIpKYnWWW5I91+EyOWtUrvRILIRlCA0RiEUksYgiYEAmB3MLGnMLglzRd52uQK5BLyQMAde73RIvEg4qWhsUibgkEoD5HMwuaAxOWK6H2ygFi3nBYh4m5qzzzEhI0VRvGerONsgVITWvkcp6o80eI5Iph15rKNQ+/9FYaBo0RxXtjSbxOphfgtEZjdkFgVkFC9FcwZqNxma1C9+lNS7paZUs5AWTaUEqI7bsltUO6ibjXMY2t1viKuGgorNZ0RaT5MswmdY5Pnp+sVqdSAmpjCCV0TF0RWtckWyW7GqDqYzG2Kw/KwihXSviyb4hoNftxrhBLKLoTEiaooqZjGB8TiObq+1O0RBRJJskiZhibkEwNmMtoLcjCo6KeHLPDKhmtxtTSWIRRU+bSTQEk2nB6KxOsex2qypLMABdzSbtjYpsDs5M6zVv/CswIeLJvgLbJFFtfVixs1USq1OMz2qMzoqqdnPsIKBb7l+yWTK/JDg9pbFU2DbPpCDiyb6aP0oJ6NDTKmmLSybSgpGU5p+uXkJAh64Wk2SjYnJe4+y02BbPqOYNINks6WmRZHKCoUlt2y/81iISVPS2W+cKp6d1JuZq+3nVrAHUhRR7OiSBgOLUuM7cYm3/kHbTFFXs7jAplgQDExq5GnWLas4AhIDuZkl3i2RiTnA6pfvygE2ia7Cj1XKLzqY0Rme1mtMe1ZQBhALQ32liGIqTozoL+doctSpNQ1ixt8ukVBIcH9cpltxukX3UjAEkGiR7kpJUVmNoUvNHfZvRNcWuNkUiJhkY15nJ1sbgYrjdgK0iBPS2mbTFVU39MF7DlIKBCUF6SbA3adIQEZye1qveJbpi2jivE9AVV+8oE69XPD9cfZ3/5v4y/+4NBUJVNAylMoLnT+s0RRVX7SgT0KvbAvRwQ/N/d7sRmyEcVFyz06RQFhw7q1MqV1fnB7jnlSXe+5oS99xSorddYZowNidQHtdmlU3B9LygKQrdLZK5xeo9UKyisecnNEQUB7pNpjOCocnqr8lXH1bcebjEnYdLzC8JvvVjg4d/ZPDiae+6GKYUvDyi09MiOdhrcmxEJ7NUfUZQdQbQHFX0d5kMT2lMzFW1B7ci8TrF228q8fabSkykBY8+b/BPzwQ5k/Jm5zqT0ihJwVU7TE6M6swueLOdq1FVLlCiQdLfZe1CTM1Xf+e/ud/k6p7Vt6uiYbiuV3LPLSVuv65MXQjGZgVLHjvNXsgJckXo75LkS6KqtERVMwO0xiV9HbIqR5ntwExWQ40K+rtMhNCYrpIBqioMINFgdf6XR3TS20jSUA0u0HJmF6x1wf5uE6Ws6DOv43kDaKpX7O20Rv7t0PmrZRG8GulFwfERnX3dJlJ6f7b2tAHEIop93SYD495/kFthMS944pjBN1/QeeqkXhXxx1diblFwckyjv8vk6BlvB9p41gDCQdjfbTI8pVfFVLpZvveyzscejFCosYi0mayGMQkHuk1eOK17VobuyZVKQLdOGafmRc3r0UdntJrr/OeZTGtMZ6wtUq+eGHvOAISAfV0mi3nB8FT1H3Jtd4YmdZYK53eH3G7N5XjOAHrbTAIGDEx4rmk+m+TkmEbAgJ2tpttNuQxP9bJEg6Qtrjg2Uv0LQZ+fYErB8VGdjkZFS8xbrpBnDCAUgD1J65TXqwsmn82TKwgGJnT6OkyCHkrD7BkD2Js0SWW1qpM0b4VYnSJW560R0UlSGcFMRmNfp3fWA54wgB0JK3h9eNITzakIdx4pccd1Ze44WObeW2soxnANhqYEAUPR1eyNkD3XxXB1IUV/p+TYWZ1CySPDgoPUhxUfvafAfbeX0DTQhCWK25OUPH3SqPkMdUoJFnKCvZ2SmQX34whcH3L7OiTjc2JbBLDv75Z88ZdzvOHg5b38NVeX+fMPL3Jtj/d2SuwmmxeMpwV7O9yfBVydAZLNksao4vioUXWal40gBNx7a4nfek+epvrVv2g0DHcdsfzj54d1aviRkM1pdLVIlMLVwc81AwjoltTh5Jhe05VMGusVv/1v8tx7Swl92XybK+l87vFr+PZgJ9d3zxDQrdFQ0+DIbpPrek2eGTCqSlu/EZSySkn1dUim0gLpUhioawawq11SNmFkxnUvzDGO9Jk88ME8+zovnuoHUjE+/s838vxYgjNzUb49mGR/+zwt9fkLn+lsVtx5uMzgpMZojT6jfFEQr1PUh2HOJbGjKwZQH1bsbpccG9VdXwQ5gabBfbcX+Y13FqgP/8SRUQq+9uOdfPqxQ6TzoQuvLxYDPHqiE6UE1yTnLmwRRoLwxkNlYnWKZwZ110ZJJ8nmBXs6JLOLwpXEBq4YwN6kSXpRkMrU3sjWFlf83s/nuOtI+aK97kw+wKcfO8RXj/au2JGVErw43szLU40c6Z4hHLAWw0LA1Tskr9hr8sygzoKHpcWboWxa26ItMeVKf6i4ATREFDtaFMdHDGSNrfJedVWZ378vz87Wi7/Yi2NNfOyhmzg5HV/zGuOZOh472cnulgWSsaULr7fGFW++vszonJX5rpZYzAt2tVv1CYoVngUqbgD9nSYzWa2mAlyCOvzKWwp8+M1FwstKjUgl+Osf7uGBx69lsbj+0It82eBbA0kyhSCHu2bRhGVQQQNuv7ZMV0Lx/RMGpvu7iLYglThXx0xWPJa4ogYQiyi6EorjY1rN+LM9LZLf/0CeV191scuTWgjxW/9yPY+e6EKx8e+qEByfauRHIwkOdc0QDf3k7GBPUvLqq8o8N6y7tni0m8W8oLddVXwWqKgB7O6QpBcFswu1MYXfeaTEp3+uQEfTxUPxU6fb+MTDN3I2Xb/le6QWwzxyootkLMfOpoULrzdFFW+5vsRSUfDS2eqPm5DKWgs0RSu7FqiYAYSDil3tkhNj1T91BwPwq28v8AtvLBJY5tmUpMbnn9zP5586QKFsX6csmTrfOdXBeCbCDTtS6JrlEum6JaPoSih+MFD9O2q5gsbudkkqWzmJRMUMoKdVUShS9QmtdrVLPveBHDfvu1iyMDJfzyceuoGnhtsdu/fQbIwnh9u5tnOWxkjxwut7kpLXXmPy4mmNmWz1Pl9TWtqwurAiXSEvoSIGoGvQnzQ5NalXfJVvJ3ceKXH/+/KXBXU8dqKL3/6XI0wtRBxvw3w+yCMnuokYZfa3z194PV6nuPuGMksFwbGR6nWJSmVBb5tkfK4y1WgqYgCtcUkkpDgzXZ0/TH1Y8fF7C7z/9hL6sq9wXs7w1z/cQ1lWbuQ1peDZkVbOzEUvklHomuUS9XdKfnCyOtW1hbKgLW6pBCohA6mIAezukEzPV+chztU9Jp/7QJ7rei92eZbLGdxiNRlFT6vkjYfKHBvRmUxXn0ukCetAsRLusuMGEA5axalPVtnW53kF5yffXSBev7acwS1Wk1HUh7lwGv18lWWYyxettdbUvOb4honjBpBsUkhZXYvfpqjid95b4J5XWkEr51lLzuAWV5JRHNltcniXydMndc9llV4NqQQNEYmhQcZhr8FxA9jdYTI5p1WNrPfGPSaf/UCOvZcoODciZ3CL1WQUySbFXUfKDE/pnE1Vx0AkBLQ1SsddOEcNIBKydD8DE5rny/7ouuK+20v8+k8XqF/m2WxWzuAWq8kowkF4w0FLWfrsoPd1WIUy7GpTTGecPRNw1ADaGhVCKKbS3t796WhU3P/+PHcetlfO4BarySjOK0tv7i/zw1O64+7FVpBKEKuTgHB088RRA+hpNZlb0Dy9+/Oaq8v8/n05drRcPCTaKWdwi9VkFC0xxd1HykymNQY9rCwNGlZE3bSD0gjHDEDXrO3PoUnNk0f0IQN+5c2WgjO0LFGTU3IGt1hNRhE04LXXWMrSp096U0ZhStjZKhlz8FDMMQNoPJf06WzKe52ot03y2Q/kuO1A5eUMbnFlGUWZ54YMzylLS6ago0mymBfkHTrUc8wA2hoVpoRZj2lTzis42+LuyRncYjUZRWM93H2DN5Wl0bBC03CsBKtjBrCjxSS9qHkm38/yhFSGB+QMbrGajMLQvJmgK2gIGqPOBco4YgBCWP7/2ZTmiQru+7slD3wgz+Fd3pMzuMVqMoreNskdB0scO+uNUrQK2NGiGJ2tIgOoCyk6GhVDLhe4WC0hldfkDG6xmozCSwm6yqZgR0KScug8wBEDiNcrwkFcFWKtlpDKq3IGt1hNRuGlBF2JmCRfckZN4IgBtMYUUgnXAt9XS0hVDXIGt1hNRuGFBF2xiEITVglZu3HEADqbJQt5UfHymKslpKo2OYNbrCajcDtBVyQE0YgzscKOGEB3i2Qmo1U05+dqCamqVc7gFmvJKNxI0BU0oLnBGWGcIwbQ2yYZndUoVeh0cbWEVLUgZ3CL1WQUbiTo0jTLFXPCBbPdAAK6pQA9PeW8AnS1hFS1JmdwiyvJKCqZoEspK6nC+Jz9WaRtd4iDASib1oGLk/S0SD75ngL9nZfLGT792EEGUzFH77+d+ObJLgZTcX79jucumg3uPFxiX6fJJ74U5pSDZW3LpsA0rUKKZZvrh9g+A9SHrG3Q8TnnHshqCam2g5zBLVaTUVQqQVd7k2R+UbNdEyTiyT5bzzlaYpLOJsULpyvvegQjrRjhJoS/2HUEhaKcm6GYn6n4va/rNRmdEbbnPbJ9mA4YgpJLmd/8zu8sAoERcUc2Uja5KAufXdhuALpQmC7VefM7v/O49YzLpiXYsxvbL6kJfImBj+0ohSPFtW03ACGo6eqGPu4glUBzwABs96o0YeUB8vGxE4lyxADcF3z7+LiI7QYglUBzwlR9tjUaztQStt0AlMLfi/GxHU0oR5J5OTADcEFG6+NjF0LgSGoU2xfBphTourcMQAi4bkeWtlhh1c+MzxRpaQwQ0Feev4plnefONDC/5O14guZoiYM7shj6yjsRJVORSpdIJoIrvg8wNhfm6GjUqSZuCkNXlB3Ql9n+a5ZMdVHWBS/wzhsmuf3A7BU/8/lHBK/bp2i5gobuTdem+NTXd5PNe+wLnqM5WuI333KKSHD1bbhUBv7++4KfOnLlQeofn2vloRda7G7ipjF0Z2KCbXeByqYg4LEZ4JY9aVuuE4+UuWHX/NofdIlDPdkrdv6N8PqrrjxgVJqAoSg5kKrFdgMomRDw2AAZDth3MFEXdEnnsQ4iAfvaFvHY9wxoUHbgfMl2AyiWwNC5EDzh47NVDF2h61Ao2X9tB2YAgSm5KOGsj89WOB8IUxVrAIB8iYtCFH18tkI4YPUpJ3DEAApFQTjgu0A+9hAOKsdKvjqyqb1UENR5KOPg5x9Z++GdHBN86QkIrTVzacU1PuAeo6nimt+1UIQzKcHnH6lQo2ygLqhYcijJsiMGsJCHroR3ZoB3vGLttnzpO/CmQ4qmNc5/vnsyAKM2Ncxm2hoD3Lr3yt91bgG+8dz6nslz/2BXy7ZGXVgxt+iMbtOZGaAoqA9Lx46vN8qVDrfOEwpAU3TtzwYM7yqdAoZY93ddz+e8gBBQF7IGVSdwZhFcFChlZYn28dkKdSGFkji2BnDEAJSCbA4aIr4B+GyNWJ0ik3fOk3AsICa7pBHzDcBni8QiiuySc3Fbjl05kxOeMQA7W+Hlgt92ts0bv5zlRThVHwwcNoCAAZGg+4/ydMq+THEjcx7a372E4VTYtmuNzdl3rc1SF1IEdMg6WGfOMQOQEjI5K3We2/zFdzoZTkW2NKrlSxqPvdTMiyMNtrXLbl4ai/JPz7WSK25ejaiA0bkwf/W9pH0N2yRNUcX8knA0yYLtqRGX09ksaYxKXjpTmSCS+qZ9FbnPdmdx7nhF7nN1T5nZBZ3x2SqcAQBmFwTxOkvN5+OzEQxdEa/D8eLdjhpAvijIFbzhBvlUF81RxUJekHdYeeK4b5LKaLTEFNPeDaSqCELArpYl2upSzGYLjM9I5hYVui5IRKG7RSMWi3JiMsFUxpfStsal7ZmgV8J5A8gKelqlFdRcoZJJXkIIxW39c+xvm+Jvvwsvnlj+DASUYCkPZ1MSyPDqq9K87VCYr/6om+ns9gyqCJxzfwbGnTcAR2qELadsCqtItcDxwmrBiHeCuAF6Enk++tZTzKUzfOFf9HWV+Tw9LTg5WubX3jpNtA4GJus8d/ZQcrg+QEezlQbRySIr56lIasSJtKC9cXslDD20M8sn3zHA86dK/NW3jA0ldZpdEHziwQCv2TvBf3nTaYLG9lpDtcclk/OVMfqKGMBMViNsbB9t0K170/y3u4cYSUm+8Ojm3JjFAvyPvw1wbXeG33jLKSI2BvZ7mVhEETSoiP8PFTIAU8JURiPZVPs/Ym9rjl943VmEUPzZvwa2dIhzNqXxd0/qHOhc4EN3nHEkP77XSDZLpjLOHn4tp2LZoUdnNBIxVdPB8iFD8pG7hgkZkrMpjReHt/54//77OrmC4IZd87zt8JQNrfQuoQAkGhTjs5VLWl6xOxVK1qFGZ7O38s3YyZsPTZOIWhvXTw/Y82jzRcH3T1pD/703TZJsXD29Y7XT2WwykxXki5Wb6ipaH2BsRqO9UXkuc5wd1IfKvPXQ9IV/n5m270c8eq78qKFJ3nXzuG3X9RIBXdHeqBir4OgPFTaATE6QzVll72uNG3dnL8qmlrbxCD+1bEfkFbsy7GjO2XZtr9CVkGRykHV4q/xSKl4h5vSUTrJZEvRY+sStcuOui/OPlmz09ArLcmIKobhlrz25Tr1C0ICOJsXZqcp3ioobwEJekFkSdLbUzlpACLime6Fi97t5T23pSroSJvNLwlHd/2q4UiNsaEoj2ag8ESxjB9GQSci4ZN/Ozt/ykmsl44XL71elREKKjkbF6Sl3ytW5ctdcQTA5r9HbXhs/YlP95Xn74nX2GXd8hQPERINDuQIrzK42k4m0YKngziGHa1Uiz05bMcO1IJWuD1+euH6HjYnBmlcIQovXVb8BNEcVDRHrwM8tXLtzyRScntbY3WGi12Cx1pv32Te7HeytnfXSeXRNsbvdZHhKc1Ul7GrXm5jTKJYEPa3V/QNncperyne3Sw50b90IomE4tOvy62RXuGc10dMqKZQFk2l3Rz/Xx96BCY2ORkVDuHpdoZnsygEs972+vOXq5j9za5ngCn19bql6NSUNEWvhOzDhevdz3wByBcHZlMbeLrNqq8rkSxoT85enSznQLXnXbZsvbLW3U/GWGy//+3xJY6lQnQcpuqbY22lyJqWRc2nhuxzXDQBgZEajWILetuo0AICnBuIrvv7uV5V5w8GNG0Fbo+Kj9xRXrLf2wtmYJ5IOb4Zd7YpSSVRc8rAa3mgFcGLcoCUmaYlV5y/7vZNNK0ZuaQJ+5c1l3vvq8rrLx16zU/KZ+4okGlZ+Fs8Mezc30ZVoiUkSDZITY7pnDNgzK6liCQYndPZ0mCwWdE9MjxvhzGyYp0/FeEXf5ae0QlgzwS37TP7y2wbPDuqUV1j372pT3Htbmdv2m6tq/xcLOs8OrTzbeJm6kGJPUnJyTL9I2uE2njEAgFRGEA0LDnSbvDCsV10Q/YNPdnL9riyGtvLuT0+b4mP3lphfKvPyiMbUPEgpaIwq9nepdYWNfvWHbSxWmf+va4p9XSbjsxozWW/9pp4yAIDT0zr14TJ7kpKXR6rrh57KBPny0+28Zw3JcrxO8Yr+jW/9TmeDPPxi62ab5wpCQH+XpFiGMy4eeK2G51qkFJwY1akLKXa1V9/5wNd+1MaTg422X7dYFjzwjZ0Uy94aQdeit80kHFQcH/WO378czxkAWKfER88YtMYUySqLHVAK/uSbOzg2tkaxsQ1dU/C/v9nD4FSdbdesBJ3NktaY4thZ77qznjQAsEIoj43o7Gw1STRUl2guV9L4na/v5qmBrc8E+ZLGZx7eyZM2XKuStMQkPa2SYyN6RUMcN4rjibG2QrEsWMgL9nVJlgqC3BoP0kuJsaQSPD0UJ1/S2JdcwtjEId/QdITf+6ddHBu3bzaxg7USYzU3KPo7JSdG15cMzE0cTY9uFy0xxZ6kycsjOunF1R9oXVM/wlYhvkU0XGZfxxJCbO5RxerKvP6qmXVfY24xyBPHGzk6Ft1UqRalBC+P17FYsH+PQ6FYmjux6vtN9Yp93SYD4zqpjLc7P3hwF2glUhmBEBr7u01OjOrMrhJvW87NYEQSthvBVV2LvHLP1sIQpzIhsrkAbbECTfUloiGTgCFRSlAoaRTKGuklg1Q2SDZv0Fhf5tYthD7quuLpQXvPCxSKUn521fcTDZbMYXBcq4rOD1UyA5zHmlpNBic0puftX750N0uO9F1+CNXXIdmTrK4dqYFxncFLxGZKwbOndEZn7H92LTHJnqSsmpH/PFUxA5xnNis4MarT32Vi6ML2yiHRCCuewI7MCITQt6zsrBRSwejM5Y0VAhocKP3V2WwteI+P6o4XtLCbqjIAsBLHHj2jc6DbJBwQDE3ad1iWPVeP9lIjKJQEA+PV9cOuhFLWd7QLIax9/taY4qUzOpkKpzSxg6pygZYTDiqu2mGyVBCcHNMwZfU9/GpG162dnnBQ8dIZg0KVRmh69hxgLfJFwYvDOoauuK7XJBKqSjuuSupCioO9JppQvDisV23nhyo2APjJifHcguDgTrNqpdTVREtMcl2vyUxG46WzhmdPeNdL1a0BLkUpGJ7SWcgr+jpM4nUaw1MaZnUdHnseXVPsalckGixJs9dUnZulatcAKxEKQH/SJBBQnBzVXck0Vos0RKz9/WIJTo4ZntLzb5WaMgCwdia6miU7WiTjacHZad2fDTaJril6WiUdjYozKc2R8wO3qTkDOE8kpNjTIQkGFKcmqm9/2m2ao1benkJZMDDhjQB2J6hZAzhPR5NkZ6skmxMMTWprCuq2O5FzcRgNYRie0lzP2+M0NW8AYBVf2NGqaI9LJtKCkZRua/ryWiBoWFmaOxoVE/OCs9PuZmyrFCKe7MsDlye1qUHqQoqdbZJ4nWJiTjA6o1HaBj/ylQjoiq6EpKNJMb8kOD2luZao1gUKIp7smwDa3W5JJWmIKHpaTRoiMJkWjM1W92HOZggFrJpc7Y2KTA7OTOksbL9ds5SIJ/teAg643RI3aIhYo19zVJHKCCbmtPXrWXSTn31vkVdeMncqJVjICl46ZvDVF3XmlzmYLdcV+PgrJMwa/O5XAoyv9F4qwKf+wWBi2Xv1bWXuPmJybbsiZkBhSTB02uChZ3VOb7BmXiyiSDZLEg2KmayVoKrSZYm8gxoygGNsUwPI5gQvj+iEg1anOLDDpFiGybTG9LxY0z3q2WlyaJUw3VcdLPHW/WH+w5cNps915lBccnC3iYjoRAQXBbtceC+kE172Xsu1Bf74XSW6dFASigqCGtx2XYl7bwjwq38S4rk1BG4BXdHaaK2BggZMZQQ/PGWQL67rMdUsAjFuCCF+rJR6p9uNcZN8UTA0oXN6ChIN1r53b5skvShIZQSzC2L1BaGC736tjs8et94XhmLPwQIfud2k82CB9z5j8MCpTTZMl9z7xjJdGrz8eJjffNRgsgwtu4t88meLHOoocd/hIP/5ScGlRx2GrmiOKlriksY6y9hHZjRmslrFilB7HaXEcUNK+bTYDiXI14GUMD2vMT1v+citMUmyWdGXlGSWYG5RY25BXLYnXljQGJ87/y/B2L+G2H9tjp9vg6t3SLRT2mUddC0JHqcAAAV+SURBVF1okh2NCpTGj47qTJ5bp6QGA/ze3wgO6BqnR38ykdSFrIIjjfWSeB0sFgSpjMbguLbt1jjrQpMnjIiKfisvFvOAA6ES1UuhZCXtHZmxpNdNUUVTvWRni1UBMlNQlhsDl9cDU4Klc775lop/SI2pLNAkueuuEoPfMHj8rMaiKThzPEAqpIjVQX+XSSyiMHSYXxLMLmgMTlS24HSV8owxOfnCYjy5+3EQb3S7NV4lX7Siz8ZnNTTNWkg2RMuEzvWvRGeZgwuCpTwsFQWqucTrOhQowYnRy0d/vbnERz9ostx1D8QlOlz8WVPw1ScM3vDWMo29RT7274vIomBkUmNgTOcHAxqDGcgsaUzMaWTzwndv1k+hnvz3DAChxINK4BvAOpAS0ouCdF4jLQEBvVcV+dBuKxO0FoCOFkncgKVxg6N6mSN9UDYFTY0KAYiQYv/ulU/iVFDRv9MkoSsCOuhpgz94GG7ZJ7muS9EaUvTsMOnZYfKq/Qaf/WKYr6Yq+ghqhafGxsaWDICoUfhy1gx9Dqiu7EseId4muSj/ghIcezLE7z6qMy7B0KxFqXbOLZJzBl94TGdq2S5QvL/Ehw5KMGFqVjBU0ihJK2t2+ZjBNx4HNEVbh8kNV5V5961l+uJlfumOMt/8fwbZmj/Ptxcl+AqciwcYGRnJNSb7/lLBh91tVhWyfBdIKO58V44P9iha62A2J1i80DEF4ZxAATKv8cSPApxa5q501Zf5xYMgTEE6qzF/bnaJxiW7woqXJqywz6kxg38eM3h6IceX32ZSlzTp1gyO+dKO9SMoSZMvwbKIME0T9wMbPFbxgfO7QNYa4a+/HmDAtPbvf2mf2lKGopYb83z9vy7xxx8s8obG5UO8IhpRaALUksaCP/pvCCXVwwuTg1OwzABmRwdGEOpP3WtWbVAYCfDAUxqmULzprUVu2sLe2syLAR6eE4homd/85Rz331Pgw28p8LGfz/FHr5cYSvD8czqj/sJ3Q+hC3X/+/y/apDNN8Ulg7rK/8NkAgucfC/FwBvSmMv/pDpPN5nRWOZ0H/izE3wxoFCKSW64v8a5bS9y1X1Kf03nkoTCfeGqTZwzbl2/PjQ89cf4fl83QsY49HxJC/WFl21SFCOjpMUnogvSkxtDixW/XJ0z2xgFTY+iMYF5BKG5yIAEUNV4eERdtg154r6BxbFRc5osGI5LuhCKqQ35RcHZWI+f3/I2iBNpr0+MnHz//wkouqh7v7PsOipsr1y4fH+cRqP+bHj/1c8tfW+mc0sTU3wtkKtMsH5+KkC6V5UcufXHFg/r5yROnlFC/5HybfHwqg0B9cHF6eOLS11dNrFnIzr0YjiYiCG5ztmk+Ps4i4A/S46c+u9J7V8wsW1iY/WY41nwVcLUjLfPxcZ5H55vD72d6esWjwrW0inI+aL4PeMj+dvn4OM6zgZLxTo4eXTX0Z22x7vBwfr5evEMI8Y+2Ns3Hx1meNSV3p1LHs1f60PqS68/Omvme5N+Fl8wuBIdtaZ6Pj3M8GigZd6enT655qLv+6hLT02ZhYfZrkYZEFriDKs8s7VObCMX/mk+E3790+lhuXZ/fzE0ak3tfrTD/HMSuzfy9j48DpAXqg+nxU1/ZyB9tqr5QfmH2dEO47YtSlwngMJs0JB8fG1AC9WC5LN+enRz6wUb/eMsdt7Fzz2GF+p8obt/qtXx8NoZ6XKB/fLm2Z6PYNnLHO3ffIdD+o1Lqbvz1gY9zlJVSD+lC3b9c1blZbHdd4m17+oTB+5SSbwNxyO7r+2xLCsBTSvAVafKl88EsduCo796Y3LVTIm4TQhxEiUPADlCNWLHHfhoWn+UUQSyASqOYBPEymjwB6tl6Ct8dGxtbcuKm/x/DovncSosx5gAAAABJRU5ErkJggg==">
 <title>WBCHSE Class XI — Result Management System</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -381,19 +374,6 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
 .cert-preview{background:#fff;color:#000;padding:20mm;width:190mm;margin:0 auto;
   border:3px double #000;font-family:'Times New Roman',serif;position:relative}
 
-/* ── DASHBOARD ── */
-.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
-.dash-charts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
-.chart-card{background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:10px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);min-width:0}
-.chart-lbl{font-size:9px;font-weight:700;color:#D4A017;margin-bottom:6px;letter-spacing:.8px;text-transform:uppercase}
-.dash-bottom{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-@media(max-width:600px){
-  .dash-stats{grid-template-columns:repeat(2,1fr)!important}
-  .dash-charts{grid-template-columns:repeat(2,1fr)!important}
-  .dash-bottom{grid-template-columns:1fr!important}
-  .snum{font-size:22px!important}
-}
-
 /* ── UPLOAD ZONE ── *//* ── UPLOAD ZONE ── */
 .upload-zone{border:2px dashed var(--border2);border-radius:10px;padding:32px;text-align:center;
   cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02)}
@@ -491,11 +471,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
     <div class="hdr-tags">
       <span class="hdr-tag gold" id="tagYear">2024–25</span>
       <span class="hdr-tag" id="tagCount">0 Students</span>
-      <span class="hdr-tag" id="syncStatus" style="font-size:9px">📴 Offline</span>
+      <span class="hdr-tag" id="syncStatus" style="font-size:9px;cursor:pointer" 
+  onclick="manualPull()" title="Click to sync from cloud">📴 Offline</span>
+      <button onclick="manualPull()" title="Pull from cloud"
+        style="padding:3px 9px;background:rgba(52,152,219,.2);color:#3498db;border:1px solid rgba(52,152,219,.4);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">⬇ Pull</button>
+      <button onclick="manualPush()" title="Push to cloud"
+        style="padding:3px 9px;background:rgba(39,174,96,.2);color:#27ae60;border:1px solid rgba(39,174,96,.4);border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">⬆ Push</button>
       <button id="pwaInstallBtn" onclick="installPWA()" title="Install App"
-        style="display:none;align-items:center;gap:4px;padding:4px 10px;background:var(--gold);color:#000;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">
-        📲 Install
-      </button>
+        style="display:none;padding:3px 9px;background:var(--gold);color:#000;border:none;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">📲 Install</button>
       <button id="themeBtn" onclick="toggleTheme()" style="background:rgba(255,255,255,.08);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);cursor:pointer;letter-spacing:.3px;transition:all .2s">🌙 Dark</button>
     </div>
   </div>
@@ -522,31 +505,29 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
 
 <!-- ═══════ DASHBOARD ═══════ -->
 <div class="sec active" id="sec-dashboard">
-  <!-- STATS -->
-  <div id="dashStats" class="dash-stats"></div>
-
-  <!-- CHARTS — 2x2 glossy grid -->
-  <div class="dash-charts">
-    <div class="chart-card">
-      <div class="chart-lbl">📊 Pass / Fail</div>
-      <canvas id="chartPF" height="90"></canvas>
+  <div class="srow" id="dashStats"></div>
+  <!-- CHARTS ROW — 4 compact glossy cards -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px">
+    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden">
+      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📊 Pass / Fail</div>
+      <canvas id="chartPF" height="80"></canvas>
     </div>
-    <div class="chart-card">
-      <div class="chart-lbl">🎓 Grade Dist.</div>
-      <canvas id="chartGrade" height="90"></canvas>
+    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden">
+      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">🎓 Grade Dist.</div>
+      <canvas id="chartGrade" height="80"></canvas>
     </div>
-    <div class="chart-card">
-      <div class="chart-lbl">📚 Stream Pass%</div>
-      <canvas id="chartStream" height="90"></canvas>
+    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden">
+      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📚 Stream Pass%</div>
+      <canvas id="chartStream" height="80"></canvas>
     </div>
-    <div class="chart-card">
-      <div class="chart-lbl">📖 Subject P/F</div>
-      <canvas id="chartSubject" height="90"></canvas>
+    <div style="background:linear-gradient(135deg,#1a2a4a 0%,#0d1f3c 100%);border:1px solid rgba(212,160,23,.25);border-radius:10px;padding:8px;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden">
+      <div style="font-size:9px;font-weight:700;color:#D4A017;margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase">📖 Subject P/F</div>
+      <canvas id="chartSubject" height="80"></canvas>
     </div>
   </div>
 
-  <!-- Top 3 + Incomplete -->
-  <div class="dash-bottom">
+  <!-- Top 3 + Incomplete row -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
     <div class="card" style="padding:14px">
       <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:10px;letter-spacing:.5px">🏆 TOP 3 STUDENTS</div>
       <div id="dashTop3">—</div>
@@ -815,6 +796,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('summary',this)" id="rbt-summary">🏫 Summary Cert.</button>
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('passcert',this)" id="rbt-passcert">🎓 Pass Certificate</button>
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('notice',this)" id="rbt-notice">📨 Notice Letter</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('subjectsort',this)" id="rbt-subjectsort">📋 Subject Sort</button>
   </div>
 
   <!-- Compartmental / Grace -->
@@ -923,6 +905,30 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
         <button class="btn btn-gold btn-sm" onclick="printNoticeLetter()">🖨 Print Letter</button>
       </div>
       <div id="noticePreview"></div>
+    </div>
+  </div>
+
+  <!-- Subject Sort -->
+  <div id="rpt-subjectsort" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📋</span>Subject-wise Student Ranking</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+        <select id="sortSubject" onchange="renderSubjectSort()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;min-width:180px">
+          <option value="">— Select Subject —</option>
+        </select>
+        <select id="sortStream" onchange="renderSubjectSort()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="">All Streams</option>
+          <option value="Science">Science</option>
+          <option value="Arts">Arts</option>
+        </select>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="sortPassOnly" onchange="renderSubjectSort()"> Pass only
+        </label>
+        <input id="sortTeacher" placeholder="Subject Teacher Name" 
+          style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;min-width:180px"/>
+        <button class="btn btn-ghost btn-sm" onclick="printSubjectSort()">🖨 Print</button>
+      </div>
+      <div id="subjectSortTable"></div>
     </div>
   </div>
 
@@ -1183,6 +1189,47 @@ function getSchoolId(){ return (S.school.code||'rhs').toLowerCase().replace(/[^a
 function showSyncStatus(msg, color){
   const el=document.getElementById('syncStatus');
   if(el){ el.textContent=msg; el.style.color=color||'var(--text3)'; }
+}
+
+async function manualPull(){
+  showSyncStatus('⟳ Pulling…','var(--gold2)');
+  try{
+    const res=await fetch(`${API_BASE}/api/data/${getSchoolId()}`,{signal:AbortSignal.timeout(15000)});
+    const json=await res.json();
+    if(json.ok && json.data){
+      S=json.data;
+      localStorage.setItem('wbchse_v3',JSON.stringify(S));
+      showSyncStatus('✅ Pull done','var(--green3)');
+      updateHeader();renderDashboard();
+      notif('✓ Data pulled from cloud successfully!','ok');
+    } else {
+      showSyncStatus('⚠ No cloud data','var(--text3)');
+      notif('No data found in cloud.','err');
+    }
+  }catch(e){
+    showSyncStatus('📴 Offline','var(--text3)');
+    notif('Pull failed — server offline.','err');
+  }
+}
+
+function manualPush(){
+  showSyncStatus('⟳ Pushing…','var(--gold2)');
+  fetch(`${API_BASE}/api/data/${getSchoolId()}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({payload:S})
+  }).then(r=>r.json()).then(j=>{
+    if(j.ok){
+      showSyncStatus('☁ Push done','var(--green3)');
+      notif('✓ Data pushed to cloud successfully!','ok');
+    } else {
+      showSyncStatus('⚠ Push failed','var(--text3)');
+      notif('Push failed.','err');
+    }
+  }).catch(()=>{
+    showSyncStatus('📴 Offline','var(--text3)');
+    notif('Push failed — server offline.','err');
+  });
 }
 
 async function loadData(){
@@ -2980,6 +3027,7 @@ function showRptTab(tab, btn){
   if(tab==='absent') renderAbsentReport();
   if(tab==='failed') renderFailAnalysis();
   if(tab==='summary') renderSummaryCert();
+  if(tab==='subjectsort') initSubjectSort();
 }
 
 // ═══ COMPARTMENTAL / GRACE ═══
@@ -3577,6 +3625,176 @@ function printNoticeLetter(){
     <div></div>
     <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div>
       <div style="font-size:9px;color:#555">${sch.name||''}</div></div>
+  </div>
+  <script>window.print();<\/script></body></html>`);
+  win.document.close();
+}
+
+// ═══ SUBJECT-WISE STUDENT SORT ═══
+function initSubjectSort(){
+  const sel=document.getElementById('sortSubject');
+  if(!sel) return;
+  // Populate subject dropdown
+  sel.innerHTML='<option value="">— Select Subject —</option>';
+  S.subjects.forEach((sub,gi)=>{
+    const opt=document.createElement('option');
+    opt.value=gi;
+    opt.textContent=sub.name+' ('+( sub.stream==='Both'?'All':sub.stream==='Science Only'?'Science':'Arts')+')';
+    sel.appendChild(opt);
+  });
+  document.getElementById('subjectSortTable').innerHTML=
+    '<div style="text-align:center;padding:30px;color:var(--text3)">Select a subject above to see rankings.</div>';
+}
+
+function renderSubjectSort(){
+  const gi=parseInt(document.getElementById('sortSubject')?.value);
+  const streamF=document.getElementById('sortStream')?.value||'';
+  const passOnly=document.getElementById('sortPassOnly')?.checked||false;
+  const tbl=document.getElementById('subjectSortTable');
+
+  if(isNaN(gi)||gi<0){
+    tbl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">Select a subject above.</div>';
+    return;
+  }
+
+  const sub=S.subjects[gi];
+  if(!sub){ tbl.innerHTML=''; return; }
+
+  const w=sub.type==='w40'?40:35;
+  const ppMax=sub.hasPrac?30:20;
+  const ppLbl=sub.hasPrac?'Practical':'Project';
+
+  // Compute overall rank for ALL students in stream (for overall rank column)
+  const overallRanked={};
+  S.students.filter(st=>hasAllMarks(st)&&(!streamF||st.stream===streamF))
+    .map(st=>({roll:st.roll,...computeStudent(st)}))
+    .sort((a,b)=>b.bestTotal-a.bestTotal)
+    .forEach((st,idx,arr)=>{
+      // Handle ties
+      const rank=arr.findIndex(x=>x.bestTotal===st.bestTotal)+1;
+      overallRanked[st.roll]=rank;
+    });
+
+  // Gather students who have this subject AND have marks entered
+  let students=S.students.filter(st=>{
+    if(streamF&&st.stream!==streamF) return false;
+    const subs=getStudentSubjects(st.stream,st);
+    if(!subs.includes(sub)) return false;
+    // Must have at least S1 entered
+    const m=st.marks&&st.marks[gi];
+    return m&&(m.s1!==undefined&&m.s1!==null&&m.s1!=='');
+  }).map(st=>{
+    const m=(st.marks&&st.marks[gi])||{};
+    const r=computeSub(sub,m);
+    const s1=m.s1!=null&&m.s1!==''?(isAbs(m.s1)?'AB':m.s1):'—';
+    const s2=m.s2!=null&&m.s2!==''?(isAbs(m.s2)?'AB':m.s2):'—';
+    const pp=sub.hasPrac
+      ?(m.prac!=null&&m.prac!==''?(isAbs(m.prac)?'AB':m.prac):'—')
+      :(m.proj!=null&&m.proj!==''?(isAbs(m.proj)?'AB':m.proj):'—');
+    const oc=computeStudent(st);
+    return{st,r,s1,s2,pp,total:r.total,passed:r.passed,
+      overallRank:overallRanked[st.roll]||'—',
+      overallTotal:oc.bestTotal,overallMax:oc.bestMax};
+  });
+
+  if(passOnly) students=students.filter(s=>s.passed);
+  students.sort((a,b)=>b.total-a.total);
+
+  if(!students.length){
+    tbl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">No data found.</div>';
+    return;
+  }
+
+  const passCount=students.filter(s=>s.passed).length;
+  const avg=students.length?(students.reduce((a,s)=>a+s.total,0)/students.length).toFixed(1):'—';
+  const highest=students[0]?.total||0;
+
+  let html=`
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+      <div class="sbox sn" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${students.length}</div><div class="slbl">Total</div>
+      </div>
+      <div class="sbox sg" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${passCount}</div><div class="slbl">Passed</div>
+      </div>
+      <div class="sbox sr" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${students.length-passCount}</div><div class="slbl">Failed</div>
+      </div>
+      <div class="sbox so" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${avg}</div><div class="slbl">Avg Score</div>
+      </div>
+      <div class="sbox sp" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${highest}</div><div class="slbl">Highest</div>
+      </div>
+    </div>
+    <div style="overflow:auto">
+    <table class="rtable" style="width:100%">
+    <thead><tr>
+      <th style="text-align:center">Sub.<br>Rank</th>
+      <th style="text-align:center;border-left:2px solid var(--gold)">Overall<br>Rank</th>
+      <th>Roll</th>
+      <th style="text-align:left">Name</th>
+      <th>Stream</th>
+      <th style="text-align:center">Sem I<br><span style="font-weight:400;font-size:9px">/${w}</span></th>
+      <th style="text-align:center">Sem II<br><span style="font-weight:400;font-size:9px">/${w}</span></th>
+      <th style="text-align:center">${ppLbl}<br><span style="font-weight:400;font-size:9px">/${ppMax}</span></th>
+      <th style="text-align:center">Sub.Total<br><span style="font-weight:400;font-size:9px">/100</span></th>
+      <th style="text-align:center">Best of 5<br><span style="font-weight:400;font-size:9px">/500</span></th>
+      <th style="text-align:center">Status</th>
+    </tr></thead>
+    <tbody>`;
+
+  let subRank=1, prevTotal=-1;
+  students.forEach((s,idx)=>{
+    if(s.total!==prevTotal){ subRank=idx+1; } prevTotal=s.total;
+    const medal=subRank===1?'🥇':subRank===2?'🥈':subRank===3?'🥉':'#'+subRank;
+    const cls=subRank<=3?['rk1','rk2','rk3'][subRank-1]:'';
+    html+=`<tr class="${cls}">
+      <td style="text-align:center;font-size:13px">${medal}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--blue3);border-left:2px solid var(--gold)">${s.overallRank}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--gold2)">${s.st.roll}</td>
+      <td style="font-weight:700">${s.st.name}</td>
+      <td style="font-size:11px;color:var(--text3)">${s.st.stream}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${s.s1}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${s.s2}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace">${s.pp}</td>
+      <td style="text-align:center;font-weight:900;font-size:14px;color:var(--gold2)">${s.total}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;font-size:12px">${s.overallTotal}<span style="font-size:9px;color:var(--text3)">/${s.overallMax}</span></td>
+      <td style="text-align:center"><span class="badge ${s.passed?'b-pass':'b-fail'}">${s.passed?'PASS':'FAIL'}</span></td>
+    </tr>`;
+  });
+
+  html+='</tbody></table></div>';
+  tbl.innerHTML=html;
+}
+
+function printSubjectSort(){
+  renderSubjectSort();
+  const gi=parseInt(document.getElementById('sortSubject')?.value);
+  const sub=S.subjects[gi];
+  if(!sub||isNaN(gi)){notif('Select a subject first.','err');return;}
+  const sch=S.school;
+  const html=document.getElementById('subjectSortTable').innerHTML;
+  const win=window.open('','_blank');
+  const teacher=(document.getElementById('sortTeacher')?.value||'').trim();
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${sub.name} — Student List</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:12mm;font-size:11px}
+  h2{text-align:center;font-size:15px;margin-bottom:3px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;margin-bottom:10px}th,td{border:1px solid #000;padding:5px 7px}
+  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .rk1{background:#FFF9E6}.rk2{background:#F5F5F5}.rk3{background:#FFF3E0}
+  .badge{padding:1px 6px;font-size:9px;font-weight:700;border:1px solid #000}
+  .sbox{display:inline-block;border:1px solid #ccc;border-radius:6px;padding:6px 12px;margin:0 4px 8px;text-align:center}
+  .snum{font-size:18px;font-weight:700}.slbl{font-size:9px;text-transform:uppercase;color:#666}
+  @page{margin:10mm}</style></head><body>
+  <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
+  <h3>${sub.name} — Student List | ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
+  ${teacher?`<p style="text-align:center;font-size:11px;margin-bottom:10px">Subject Teacher: <strong>${teacher}</strong></p>`:''}
+  ${html}
+  <div style="margin-top:30px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:10px;text-align:center">
+    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">Class Teacher</div></div>
+    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">${teacher?teacher:'Subject Teacher'}</div>${teacher?`<div style="font-size:9px;color:#555">${sub.name}</div>`:''}</div>
+    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div><div style="font-size:9px;color:#555">${sch.name||''}</div></div>
   </div>
   <script>window.print();<\/script></body></html>`);
   win.document.close();
@@ -4403,32 +4621,15 @@ loadData().then(()=>{
   renderDashboard();
 });
 </script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
-      .then(()=>console.log('SW registered'))
-      .catch(e=>console.log('SW error:',e));
-  });
-}
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredPrompt=e;
-  const btn=document.getElementById('pwaInstallBtn');
-  if(btn) btn.style.display='flex';
-});
-window.addEventListener('appinstalled',()=>{
-  const btn=document.getElementById('pwaInstallBtn');
-  if(btn) btn.style.display='none';
-  deferredPrompt=null;
-});
-function installPWA(){
-  if(deferredPrompt){
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(()=>{deferredPrompt=null;});
-  }
-}
-</script>
+<div id="tsm-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:8000;
+  text-align:center;padding:6px 0;font-size:11px;
+  color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;
+  letter-spacing:1px;pointer-events:none;
+  background:rgba(0,0,0,.35)">
+  Developed by TSM
+</div>
+<style>
+.main{padding-bottom:24px}
+</style>
 </body>
 </html>
