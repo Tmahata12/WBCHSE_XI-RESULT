@@ -3700,19 +3700,34 @@ function renderSubjectList(){
     if(streamF&&st.stream!==streamF) return false;
     if(sectionF&&(st.section||'')!==sectionF) return false;
 
-    // Stream mismatch — e.g. Science-only subject shown to Arts student
+    // Stream mismatch
     if(sub.stream==='Science'&&st.stream!=='Science') return false;
     if(sub.stream==='Arts'&&st.stream!=='Arts') return false;
 
-    // For Arts optional subjects: check optSubs explicitly
-    if(st.stream==='Arts' && st.optSubs && st.optSubs.length>0){
-      if(sub.stream==='Both') return true;           // Bengali/English always included
-      return st.optSubs.includes(sub.name);           // optional: must be in their list
+    // Bengali & English — everyone has it
+    if(sub.stream==='Both') return true;
+
+    // Arts optional subjects
+    if(st.stream==='Arts'){
+      if(st.optSubs && st.optSubs.length>0){
+        // optSubs explicitly set — use it
+        return st.optSubs.includes(sub.name);
+      } else {
+        // optSubs not set — check if any marks exist for this subject index
+        const gi2=S.subjects.indexOf(sub);
+        if(gi2<0) return false;
+        const m=st.marks&&st.marks[gi2];
+        return m&&(
+          (m.s1!==undefined&&m.s1!==null&&m.s1!=='') ||
+          (m.s2!==undefined&&m.s2!==null&&m.s2!=='') ||
+          (m.proj!==undefined&&m.proj!==null&&m.proj!=='') ||
+          (m.prac!==undefined&&m.prac!==null&&m.prac!=='')
+        );
+      }
     }
 
-    // For Science students or Arts without optSubs set:
-    // include if subject belongs to their stream or Both
-    return sub.stream==='Both'||sub.stream===st.stream;
+    // Science — all Science subjects go to Science students
+    return true;
   });
 
   if(!students.length){
