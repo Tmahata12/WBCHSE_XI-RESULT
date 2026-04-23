@@ -2475,6 +2475,21 @@ function printMeritList(){
     .footer{text-align:center;font-size:9px;color:#555;border-top:1px solid #ccc;
             padding-top:6px;margin-top:16px;letter-spacing:.3px}
     @media print{body{padding:5mm 8mm}@page{size:A4 landscape;margin:8mm 10mm}}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  @page{margin:18mm 14mm 22mm 14mm}
+  @media print{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   </style></head><body>
   <h1>${S.school.name}</h1>
   <h2>${S.school.exam} — ${S.school.cls} | Academic Year: ${S.school.year}</h2>
@@ -2511,8 +2526,20 @@ function printMeritList(){
     html+=`</tbody></table>`;
   });
 
-  html+=`<div class="footer">${S.school.name} &nbsp;·&nbsp; Printed on ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</div>
-  </body></html>`;
+  html+=`<div class="footer">${S.school.name} &nbsp;·&nbsp; Date: ${new Date().toLocaleDateString('en-GB').split('/').join('-')}</div>
+  <script>
+(function(){
+  var d=new Date().toLocaleDateString('en-GB').split('/').join('-');
+  var bar=document.createElement('div');
+  bar.style.cssText='position:fixed;bottom:8mm;left:14mm;right:14mm;'
+    +'border-top:1px solid #000;padding-top:3px;'
+    +'font-size:9px;font-family:Arial,sans-serif;color:#000;z-index:9998;'
+    +'background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+  bar.innerHTML='Date: <b>'+d+'<\/b>';
+  document.body.appendChild(bar);
+})();
+<\/script>
+</body></html>`;
 
   const w=window.open('','_blank','width=1000,height=700');
   w.document.write(html);
@@ -3198,7 +3225,25 @@ function printCompartmental(){
   h2{text-align:center;font-size:16px;margin-bottom:4px}h3{text-align:center;font-size:13px;color:#555;margin-bottom:16px;font-weight:400}
   table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:6px 8px;font-size:11px}
   th{background:#000;color:#fff}.comp-row-warn{background:#fff3e0}.comp-row-fail{background:#fdecea}
-  @media print{@page{margin:10mm}}</style></head><body>
+  @media print{@page{margin:10mm}}
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  </style></head><body>
   <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
   <h3>Compartmental Students — ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
   ${html}
@@ -3206,7 +3251,8 @@ function printCompartmental(){
     <div style="text-align:center"><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px;font-size:10px">Class Teacher</div></div>
     <div style="text-align:center"><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:4px;font-size:10px">Head of Institution</div><div style="font-size:9px;color:#555">${sch.name||''}</div></div>
   </div>
-  <script>window.print();<\/script></body></html>`);
+  <script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3267,6 +3313,24 @@ function printGazette(){
   .gaz-pass{color:#155724;font-weight:700}.gaz-fail{color:#721c24;font-weight:700}
   .badge{padding:1px 5px;font-size:9px;font-weight:700;border:1px solid #000}
   @page{size:A3 landscape;margin:10mm}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style></head><body>
   <h1>${sch.name||'Ramnagar High School (H.S.)'}</h1>
   <h2>Official Result Gazette — ${sch.exam||'Annual Examination'} | ${sch.cls||'Class XI'} | ${sch.year||''}</h2>
@@ -3275,7 +3339,8 @@ function printGazette(){
     <div>Date: ___________</div>
     <div style="text-align:center">Head of Institution<br>${sch.name||''}</div>
   </div>
-  <script>window.print();<\/script></body></html>`);
+  <script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3332,11 +3397,30 @@ function printAbsentReport(){
   h2{text-align:center;font-size:15px;margin-bottom:4px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
   table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #000;padding:5px 8px;font-size:11px}
   th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  @page{margin:10mm}</style></head><body>
+  @page{margin:10mm}
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  </style></head><body>
   <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
   <h3>Absent Student Report — ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
   ${html}
-  <script>window.print();<\/script></body></html>`);
+  <script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3433,10 +3517,29 @@ function printProgressCard(){
   <style>body{font-family:Arial,sans-serif;padding:12mm}h2{font-size:15px;text-align:center}
   table{border-collapse:collapse;width:100%}th,td{border:1px solid #000;padding:6px 10px;font-size:12px}
   th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  @page{margin:10mm}</style></head><body>
+  @page{margin:10mm}
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  </style></head><body>
   <h2>${sch.name||''} — Semester Progress Card</h2>
   ${el.innerHTML}
-  <script>window.print();<\/script></body></html>`);
+  <script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3519,7 +3622,26 @@ function printSummaryCert(){
   <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Times New Roman',serif}
   @page{size:A4 portrait;margin:0}
   @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
-  </style></head><body>${html}<script>window.print();<\/script></body></html>`);
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  </style></head><body>${html}<script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3586,6 +3708,24 @@ function openCertWindow(htmlArr){
   @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
     body{background:#fff!important}.no-print{display:none!important}
     .wrap{padding:0!important;display:block!important}}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style></head><body>
   <div class="no-print" style="position:fixed;top:0;left:0;right:0;background:#1a2a4a;color:#fff;padding:10px 20px;display:flex;gap:12px;align-items:center;z-index:999">
     <span>${htmlArr.length} Certificate(s)</span>
@@ -3593,7 +3733,8 @@ function openCertWindow(htmlArr){
     <button onclick="window.close()" style="padding:7px 14px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;cursor:pointer">✕</button>
   </div>
   <div class="wrap" style="padding-top:52px">${htmlArr.join('')}</div>
-  </body></html>`);
+  
+</body></html>`);
   win.document.close();
 }
 
@@ -3638,6 +3779,24 @@ function printNoticeLetter(){
   <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Times New Roman',serif;padding:15mm}
   @page{size:A4 portrait;margin:0}
   @media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style></head><body>
   <div style="text-align:center;margin-bottom:14px;border-bottom:2px double #000;padding-bottom:10px">
     ${logo}
@@ -3651,7 +3810,8 @@ function printNoticeLetter(){
     <div><div style="height:40px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div>
       <div style="font-size:9px;color:#555">${sch.name||''}</div></div>
   </div>
-  <script>window.print();<\/script></body></html>`);
+  <script>window.print();<\/script>
+</body></html>`);
   win.document.close();
 }
 
@@ -3822,36 +3982,111 @@ function printSubjectList(){
   const teacher=(document.getElementById('listTeacher')?.value||'').trim();
   const streamF=document.getElementById('listStream')?.value||'';
   const sectionF=document.getElementById('listSection')?.value||'';
-  const subTitle=`${sub.name} (${sub.stream==='Both'?'All Streams':sub.stream})`
-    +(streamF?' — '+streamF:'')+(sectionF?' — Section '+sectionF:'');
-  const html=document.getElementById('subjectListTable').innerHTML;
+  const totalStudents=document.querySelectorAll('#subjectListTable tbody tr').length;
+  const now=new Date();
+  const printDate=now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  const tmp=document.createElement('div');
+  tmp.innerHTML=document.getElementById('subjectListTable').innerHTML;
+  const tableEl=tmp.querySelector('table');
+  if(tableEl) tableEl.className='main';
+  const tableHtml=tableEl?tableEl.outerHTML:'';
+
   const win=window.open('','_blank');
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
 <title>${sub.name} — Student List</title>
 <style>
-  body{font-family:Arial,sans-serif;font-size:12px;margin:20px;color:#111}
-  h2{text-align:center;margin:4px 0;font-size:16px}
-  h3{text-align:center;margin:4px 0;font-size:13px;font-weight:normal}
-  .meta{text-align:center;font-size:11px;color:#555;margin-bottom:14px}
-  table{width:100%;border-collapse:collapse;margin-top:10px}
-  th{background:#1a1a2e;color:#fff;padding:7px 10px;font-size:11px;text-align:left}
-  td{padding:6px 10px;border-bottom:1px solid #ddd;font-size:12px}
-  tr:nth-child(even) td{background:#f9f9f9}
-  .footer{text-align:right;margin-top:14px;font-size:11px;color:#666;border-top:1px solid #ccc;padding-top:6px}
-  @media print{body{margin:10px}.footer{position:fixed;bottom:10px;right:10px}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Times New Roman',serif;font-size:11.5px;color:#000;background:#fff;
+       -webkit-print-color-adjust:exact;print-color-adjust:exact;padding:5mm}
+
+  .page-frame{padding:10px 12px 12px;position:relative}
+  
+
+  .hdr{text-align:center;padding-bottom:8px;border-bottom:2px solid #000;margin-bottom:8px}
+  .school-name{font-size:17px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+  .school-addr{font-size:9px;color:#333;margin-top:2px}
+  .doc-title{font-size:11px;font-weight:700;margin-top:6px;letter-spacing:1px;
+    text-transform:uppercase;text-decoration:underline;display:block}
+
+  .info-tbl{width:100%;border-collapse:collapse;margin:7px 0 8px;font-size:10px}
+  .info-tbl td{border:1px solid #000;padding:4px 8px;vertical-align:top}
+  .info-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#555;
+    display:block;margin-bottom:1px}
+  .info-val{font-weight:700;color:#000;font-size:10.5px}
+
+  table.main{width:100%;border-collapse:collapse;font-size:10.5px}
+  table.main thead tr{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.main th{padding:5px 7px;font-size:9px;text-transform:uppercase;letter-spacing:.4px;
+    border:1px solid #000;font-family:Arial,sans-serif;text-align:center}
+  table.main td{padding:4.5px 7px;border:1px solid #999;text-align:center;vertical-align:middle}
+  table.main td.left{text-align:left}
+  table.main td.bold{font-weight:700}
+  table.main tr:nth-child(even) td{background:#f2f2f2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .b-pass{border:1px solid #000;padding:1px 5px;font-size:8.5px;font-weight:700}
+  .b-fail{border:1px solid #999;padding:1px 5px;font-size:8.5px;color:#555}
+
+  .stats-row{display:flex;border:1px solid #000;margin-bottom:8px}
+  .stat-cell{flex:1;text-align:center;padding:5px 4px;border-right:1px solid #000}
+  .stat-cell:last-child{border-right:none}
+  .stat-num{font-size:16px;font-weight:900}
+  .stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#555}
+
+  .dt-bar{margin-top:8px;padding:3px 8px;border:1px solid #ccc;
+    display:flex;justify-content:space-between;font-size:8.5px;color:#444;
+    font-family:Arial,sans-serif}
+
+  .sig-row{display:flex;justify-content:space-between;
+    margin-top:16px;padding-top:8px;border-top:1.5px solid #000}
+  .sig-box{text-align:center;width:150px}
+  .sig-line{border-top:1px solid #000;padding-top:3px;font-size:9px;font-family:Arial,sans-serif}
+
+  .watermark{position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:150px;font-weight:900;font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.04);letter-spacing:8px;pointer-events:none;z-index:0;
+    white-space:nowrap;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 portrait;margin:10mm 10mm 14mm 10mm}
 </style></head><body>
-<h2>${sch.name||'Ramnagar High School'}</h2>
-<h3>WBCHSE Class XI — Subject-wise Student List</h3>
-<div class="meta">
-  <b>Subject:</b> ${subTitle} &nbsp;|&nbsp;
-  <b>মোট Students:</b> ${document.querySelectorAll('#subjectListTable tbody tr').length}
-  ${teacher?'&nbsp;|&nbsp;<b>Subject Teacher:</b> '+teacher:''}
+<div class="watermark">RHS</div>
+<div class="page-frame">
+
+  <div class="hdr">
+    <div class="school-name">${sch.name||'Ramnagar High School (H.S.)'}</div>
+    <div class="school-addr">${sch.address||'Uttar Ramnagar, Purba-Bardhaman — 713152'} &nbsp;|&nbsp; Est. 1909 &nbsp;|&nbsp; WBCHSE Affiliated</div>
+    <span class="doc-title">Subject-wise Student List — Class XI</span>
+  </div>
+
+  <table class="info-tbl">
+    <tr>
+      <td style="width:22%"><span class="info-lbl">Subject</span><span class="info-val">${sub.name}</span></td>
+      <td style="width:20%"><span class="info-lbl">Stream</span><span class="info-val">${streamF||'All Streams'}</span></td>
+      <td style="width:18%"><span class="info-lbl">Section</span><span class="info-val">${sectionF||'All Sections'}</span></td>
+      <td style="width:16%"><span class="info-lbl">Total Students</span><span class="info-val">${totalStudents}</span></td>
+      <td><span class="info-lbl">Subject Teacher</span><span class="info-val">${teacher||'—'}</span></td>
+    </tr>
+    <tr>
+      <td colspan="3"><span class="info-lbl">DISE Code</span><span class="info-val">${sch.code||'19090306103'}</span></td>
+      <td><span class="info-lbl">Academic Year</span><span class="info-val">${sch.session||sch.year||'2025-26'}</span></td>
+      <td><span class="info-lbl">Examination</span><span class="info-val">${sch.exam||'Annual Examination'}</span></td>
+    </tr>
+  </table>
+
+  ${tableHtml}
+
+    <div style="text-align:left;font-size:10px;font-family:Arial,sans-serif;margin-top:10px;margin-bottom:4px">
+    Date: ${now.toLocaleDateString('en-GB').split('/').join('-')}
+  </div>
+  <div class="sig-row">
+    <div class="sig-box"><div class="sig-line">Subject Teacher${teacher?'<br>'+teacher:''}</div></div>
+    <div class="sig-box"><div class="sig-line">Class Teacher</div></div>
+    <div class="sig-box"><div class="sig-line">Head of Institution</div></div>
+  </div>
+
 </div>
-${html}
-<div class="footer">Printed: ${new Date().toLocaleDateString('en-IN')}</div>
+<script>window.onload=function(){window.print()}<\/script>
 </body></html>`);
   win.document.close();
-  setTimeout(()=>{win.print();},400);
 }
 
 function initSubjectSort(){
@@ -3997,31 +4232,120 @@ function printSubjectSort(){
   const sub=S.subjects[gi];
   if(!sub||isNaN(gi)){notif('Select a subject first.','err');return;}
   const sch=S.school;
-  const html=document.getElementById('subjectSortTable').innerHTML;
-  const win=window.open('','_blank');
   const teacher=(document.getElementById('sortTeacher')?.value||'').trim();
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${sub.name} — Student List</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;padding:12mm;font-size:11px}
-  h2{text-align:center;font-size:15px;margin-bottom:3px}h3{text-align:center;font-size:12px;color:#555;font-weight:400;margin-bottom:14px}
-  table{width:100%;border-collapse:collapse;margin-bottom:10px}th,td{border:1px solid #000;padding:5px 7px}
-  th{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .rk1{background:#FFF9E6}.rk2{background:#F5F5F5}.rk3{background:#FFF3E0}
-  .badge{padding:1px 6px;font-size:9px;font-weight:700;border:1px solid #000}
-  .sbox{display:inline-block;border:1px solid #ccc;border-radius:6px;padding:6px 12px;margin:0 4px 8px;text-align:center}
-  .snum{font-size:18px;font-weight:700}.slbl{font-size:9px;text-transform:uppercase;color:#666}
-  @page{margin:10mm}</style></head><body>
-  <h2>${sch.name||'Ramnagar High School (H.S.)'}</h2>
-  <h3>${sub.name} — Student List | ${sch.exam||'Annual Examination'} ${sch.year||''}</h3>
-  ${teacher?`<p style="text-align:center;font-size:11px;margin-bottom:10px">Subject Teacher: <strong>${teacher}</strong></p>`:''}
-  ${html}
-  <div style="margin-top:30px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:10px;text-align:center">
-    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">Class Teacher</div></div>
-    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">${teacher?teacher:'Subject Teacher'}</div>${teacher?`<div style="font-size:9px;color:#555">${sub.name}</div>`:''}</div>
-    <div><div style="height:35px"></div><div style="border-top:1px solid #000;padding-top:3px">Head of Institution</div><div style="font-size:9px;color:#555">${sch.name||''}</div></div>
+  const streamF=document.getElementById('sortStream')?.value||'';
+  const now=new Date();
+  const printDate=now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+
+  const tmp=document.createElement('div');
+  tmp.innerHTML=document.getElementById('subjectSortTable').innerHTML;
+  const tableEl=tmp.querySelector('table');
+  if(tableEl) tableEl.className='main';
+  const tableHtml=tableEl?tableEl.outerHTML:'';
+
+  const sboxes=tmp.querySelectorAll('.sbox');
+  let statsHtml='<div class="stats-row">';
+  sboxes.forEach((b,i)=>{
+    statsHtml+=`<div class="stat-cell">
+      <div class="stat-num">${b.querySelector('.snum')?.textContent||''}</div>
+      <div class="stat-lbl">${b.querySelector('.slbl')?.textContent||''}</div>
+    </div>`;
+  });
+  statsHtml+='</div>';
+
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${sub.name} — Subject Ranking</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Times New Roman',serif;font-size:11.5px;color:#000;background:#fff;
+       -webkit-print-color-adjust:exact;print-color-adjust:exact;padding:5mm}
+
+  .page-frame{padding:10px 12px 12px;position:relative}
+  
+
+  .hdr{text-align:center;padding-bottom:8px;border-bottom:2px solid #000;margin-bottom:8px}
+  .school-name{font-size:17px;font-weight:900;letter-spacing:.8px;text-transform:uppercase}
+  .school-addr{font-size:9px;color:#333;margin-top:2px}
+  .doc-title{font-size:11px;font-weight:700;margin-top:6px;letter-spacing:1px;
+    text-transform:uppercase;text-decoration:underline;display:block}
+
+  .info-tbl{width:100%;border-collapse:collapse;margin:7px 0 8px;font-size:10px}
+  .info-tbl td{border:1px solid #000;padding:4px 8px;vertical-align:top}
+  .info-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#555;
+    display:block;margin-bottom:1px}
+  .info-val{font-weight:700;color:#000;font-size:10.5px}
+
+  table.main{width:100%;border-collapse:collapse;font-size:10.5px}
+  table.main thead tr{background:#000;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  table.main th{padding:5px 7px;font-size:9px;text-transform:uppercase;letter-spacing:.4px;
+    border:1px solid #000;font-family:Arial,sans-serif;text-align:center}
+  table.main td{padding:4.5px 7px;border:1px solid #999;text-align:center;vertical-align:middle}
+  table.main td.left{text-align:left}
+  table.main td.bold{font-weight:700}
+  table.main tr:nth-child(even) td{background:#f2f2f2;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .b-pass{border:1px solid #000;padding:1px 5px;font-size:8.5px;font-weight:700}
+  .b-fail{border:1px solid #999;padding:1px 5px;font-size:8.5px;color:#555}
+
+  .stats-row{display:flex;border:1px solid #000;margin-bottom:8px}
+  .stat-cell{flex:1;text-align:center;padding:5px 4px;border-right:1px solid #000}
+  .stat-cell:last-child{border-right:none}
+  .stat-num{font-size:16px;font-weight:900}
+  .stat-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.4px;color:#555}
+
+  .dt-bar{margin-top:8px;padding:3px 8px;border:1px solid #ccc;
+    display:flex;justify-content:space-between;font-size:8.5px;color:#444;
+    font-family:Arial,sans-serif}
+
+  .sig-row{display:flex;justify-content:space-between;
+    margin-top:16px;padding-top:8px;border-top:1.5px solid #000}
+  .sig-box{text-align:center;width:150px}
+  .sig-line{border-top:1px solid #000;padding-top:3px;font-size:9px;font-family:Arial,sans-serif}
+
+  .watermark{position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:150px;font-weight:900;font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.04);letter-spacing:8px;pointer-events:none;z-index:0;
+    white-space:nowrap;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 landscape;margin:10mm 10mm 14mm 10mm}
+</style></head><body>
+<div class="watermark">RHS</div>
+<div class="page-frame">
+
+  <div class="hdr">
+    <div class="school-name">${sch.name||'Ramnagar High School (H.S.)'}</div>
+    <div class="school-addr">${sch.address||'Uttar Ramnagar, Purba-Bardhaman — 713152'} &nbsp;|&nbsp; Est. 1909 &nbsp;|&nbsp; WBCHSE Affiliated</div>
+    <span class="doc-title">Subject-wise Student Ranking — Class XI</span>
   </div>
-  <script>window.print();<\/script></body></html>`);
+
+  <table class="info-tbl">
+    <tr>
+      <td style="width:22%"><span class="info-lbl">Subject</span><span class="info-val">${sub.name}</span></td>
+      <td style="width:22%"><span class="info-lbl">Stream</span><span class="info-val">${streamF||'All Streams'}</span></td>
+      <td style="width:22%"><span class="info-lbl">Subject Teacher</span><span class="info-val">${teacher||'—'}</span></td>
+      <td style="width:16%"><span class="info-lbl">Academic Year</span><span class="info-val">${sch.session||sch.year||'2025-26'}</span></td>
+      <td><span class="info-lbl">Examination</span><span class="info-val">${sch.exam||'Annual Examination'}</span></td>
+    </tr>
+  </table>
+
+  ${statsHtml}
+  ${tableHtml}
+
+    <div style="text-align:left;font-size:10px;font-family:Arial,sans-serif;margin-top:10px;margin-bottom:4px">
+    Date: ${now.toLocaleDateString('en-GB').split('/').join('-')}
+  </div>
+  <div class="sig-row">
+    <div class="sig-box"><div class="sig-line">Subject Teacher${teacher?'<br>'+teacher:''}</div></div>
+    <div class="sig-box"><div class="sig-line">Class Teacher</div></div>
+    <div class="sig-box"><div class="sig-line">Head of Institution</div></div>
+  </div>
+
+</div>
+<script>window.onload=function(){window.print()}<\/script>
+</body></html>`);
   win.document.close();
 }
+
 
 // ═══════════════════════════════════════════════════════
 // SETTINGS
@@ -4221,6 +4545,24 @@ function printTabulationSheet(){
     @media print{body{padding:0}.no-print{display:none!important}}
     table{border-collapse:collapse}th,td{border:1px solid #ddd}
     .btn{padding:7px 16px;border:none;border-radius:5px;cursor:pointer;font-size:12px;margin-right:8px}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style></head><body>
   <div style="text-align:center;margin-bottom:10px;border-bottom:2px solid #1a2a4a;padding-bottom:8px">
     <div style="font-size:16px;font-weight:700;color:#1a2a4a">${school.name}</div>
@@ -4232,9 +4574,10 @@ function printTabulationSheet(){
   </div>
   ${allTables}
   <div style="margin-top:10px;font-size:9px;color:#888;text-align:right">
-    P=Pass · F=Fail · B5=Best of 5 · Green=Pass · Red=Fail · Orange=Absent &nbsp;|&nbsp; Printed: ${new Date().toLocaleDateString('en-IN')} · ${school.name}
+    P=Pass · F=Fail · B5=Best of 5 · Green=Pass · Red=Fail · Orange=Absent &nbsp;|&nbsp; Date: ${new Date().toLocaleDateString('en-GB').split('/').join('-')} · ${school.name}
   </div>
-  </body></html>`);
+  
+</body></html>`);
   win.document.close();
   setTimeout(()=>win.print(),800);
 }
@@ -4473,6 +4816,24 @@ function printMarksEntrySheet(){
     th,td{border:1px solid #ddd;white-space:nowrap}
     tbody tr:hover{background:#fffde7}
     .btn{padding:7px 16px;border:none;border-radius:5px;cursor:pointer;font-size:12px;margin-right:8px}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style>
   </head><body>
   <!-- Header -->
@@ -4495,9 +4856,10 @@ function printMarksEntrySheet(){
   ${allTables}
   <!-- Footer -->
   <div style="margin-top:14px;font-size:9px;color:#888;text-align:center">
-    Printed on: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})} · ${school.name}
+    Date: ${new Date().toLocaleDateString('en-GB').split('/').join('-')} · ${school.name}
   </div>
-  </body></html>`);
+  
+</body></html>`);
   win.document.close();
   setTimeout(()=>win.print(),800);
 }
@@ -4591,6 +4953,24 @@ function printDetailedMarksSheet(){
     tbody tr td{border-bottom:1px solid #eee}
     h1{font-size:16px} h2{font-size:13px}
     .btn{padding:8px 18px;border:none;border-radius:5px;cursor:pointer;font-size:13px;margin-right:8px}
+  
+  /* ── RHS Watermark ── */
+  body::before{
+    content:'RHS';
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-35deg);
+    font-size:160px;font-weight:900;
+    font-family:'Arial Black',Arial,sans-serif;
+    color:rgba(0,0,0,0.045);
+    letter-spacing:8px;pointer-events:none;z-index:0;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  /* border removed */
+  /* ── Page number + datetime in footer ── */
+  @page{margin:18mm 14mm 20mm 14mm}
+  @media print{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
   </style>
   </head><body>
   <!-- School Header -->
@@ -4608,7 +4988,8 @@ function printDetailedMarksSheet(){
   </div>
   <!-- Student Cards -->
   ${cards}
-  </body></html>`);
+  
+</body></html>`);
   win.document.close();
   setTimeout(()=>win.print(),800);
 }
