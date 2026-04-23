@@ -3695,12 +3695,24 @@ function renderSubjectList(){
   const sub=S.subjects[gi];
   if(!sub){tbl.innerHTML='';return;}
 
-  // Filter enrolled students
+  // Filter only students truly enrolled in this subject
   let students=S.students.filter(st=>{
     if(streamF&&st.stream!==streamF) return false;
     if(sectionF&&(st.section||'')!==sectionF) return false;
-    const subs=getStudentSubjects(st.stream,st);
-    return subs.includes(sub);
+
+    // Stream mismatch — e.g. Science-only subject shown to Arts student
+    if(sub.stream==='Science'&&st.stream!=='Science') return false;
+    if(sub.stream==='Arts'&&st.stream!=='Arts') return false;
+
+    // For Arts optional subjects: check optSubs explicitly
+    if(st.stream==='Arts' && st.optSubs && st.optSubs.length>0){
+      if(sub.stream==='Both') return true;           // Bengali/English always included
+      return st.optSubs.includes(sub.name);           // optional: must be in their list
+    }
+
+    // For Science students or Arts without optSubs set:
+    // include if subject belongs to their stream or Both
+    return sub.stream==='Both'||sub.stream===st.stream;
   });
 
   if(!students.length){
@@ -3708,10 +3720,12 @@ function renderSubjectList(){
     return;
   }
 
-  // Sort by roll
+  // Sort by roll number (numeric-aware)
   students=[...students].sort((a,b)=>{
-    const ra=a.roll||'', rb=b.roll||'';
-    return ra.localeCompare(rb,undefined,{numeric:true});
+    const ra=parseInt((a.roll||'').replace(/\D/g,''))||0;
+    const rb=parseInt((b.roll||'').replace(/\D/g,''))||0;
+    if(ra!==rb) return ra-rb;
+    return (a.roll||'').localeCompare(b.roll||'');
   });
 
   let html=`
