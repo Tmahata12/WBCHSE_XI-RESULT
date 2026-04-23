@@ -797,6 +797,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('passcert',this)" id="rbt-passcert">🎓 Pass Certificate</button>
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('notice',this)" id="rbt-notice">📨 Notice Letter</button>
     <button class="btn btn-ghost btn-sm" onclick="showRptTab('subjectsort',this)" id="rbt-subjectsort">📋 Subject Sort</button>
+    <button class="btn btn-ghost btn-sm" onclick="showRptTab('subjectlist',this)" id="rbt-subjectlist">📑 Subject List</button>
   </div>
 
   <!-- Compartmental / Grace -->
@@ -929,6 +930,29 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--tex
         <button class="btn btn-ghost btn-sm" onclick="printSubjectSort()">🖨 Print</button>
       </div>
       <div id="subjectSortTable"></div>
+    </div>
+  </div>
+
+  <!-- Subject List -->
+  <div id="rpt-subjectlist" class="rpt-tab" style="display:none">
+    <div class="card">
+      <div class="card-title"><span class="ico">📑</span>Subject-wise Student List <span class="card-sub">Enrolled students per subject</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+        <select id="listSubject" onchange="renderSubjectList()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;min-width:200px">
+          <option value="">— Select Subject —</option>
+        </select>
+        <select id="listStream" onchange="renderSubjectList()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="">All Streams</option>
+          <option value="Science">Science</option>
+          <option value="Arts">Arts</option>
+        </select>
+        <select id="listSection" onchange="renderSubjectList()" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px">
+          <option value="">All Sections</option>
+        </select>
+        <input id="listTeacher" placeholder="Subject Teacher Name (for print)" style="padding:8px 12px;border:1px solid var(--border2);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:12px;min-width:200px"/>
+        <button class="btn btn-ghost btn-sm" onclick="printSubjectList()">🖨 Print</button>
+      </div>
+      <div id="subjectListTable"></div>
     </div>
   </div>
 
@@ -3028,6 +3052,7 @@ function showRptTab(tab, btn){
   if(tab==='failed') renderFailAnalysis();
   if(tab==='summary') renderSummaryCert();
   if(tab==='subjectsort') initSubjectSort();
+  if(tab==='subjectlist') initSubjectList();
 }
 
 // ═══ COMPARTMENTAL / GRACE ═══
@@ -3631,6 +3656,147 @@ function printNoticeLetter(){
 }
 
 // ═══ SUBJECT-WISE STUDENT SORT ═══
+// ═══ SUBJECT LIST (enrolled students, no marks) ═══
+function initSubjectList(){
+  const sel=document.getElementById('listSubject');
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Select Subject —</option>';
+  S.subjects.forEach((sub,gi)=>{
+    const opt=document.createElement('option');
+    opt.value=gi;
+    opt.textContent=sub.name+' ('+(sub.stream==='Both'?'All':sub.stream==='Science Only'?'Science':'Arts')+')';
+    sel.appendChild(opt);
+  });
+  // Populate section dropdown
+  const secSel=document.getElementById('listSection');
+  if(secSel){
+    const sections=[...new Set(S.students.map(s=>s.section||'').filter(Boolean))].sort();
+    secSel.innerHTML='<option value="">All Sections</option>';
+    sections.forEach(sec=>{
+      const o=document.createElement('option');
+      o.value=sec; o.textContent='Section '+sec;
+      secSel.appendChild(o);
+    });
+  }
+  document.getElementById('subjectListTable').innerHTML=
+    '<div style="text-align:center;padding:30px;color:var(--text3)">Select a subject above to see enrolled students.</div>';
+}
+
+function renderSubjectList(){
+  const gi=parseInt(document.getElementById('listSubject')?.value);
+  const streamF=document.getElementById('listStream')?.value||'';
+  const sectionF=document.getElementById('listSection')?.value||'';
+  const tbl=document.getElementById('subjectListTable');
+
+  if(isNaN(gi)||gi<0){
+    tbl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">Select a subject above.</div>';
+    return;
+  }
+  const sub=S.subjects[gi];
+  if(!sub){tbl.innerHTML='';return;}
+
+  // Filter enrolled students
+  let students=S.students.filter(st=>{
+    if(streamF&&st.stream!==streamF) return false;
+    if(sectionF&&(st.section||'')!==sectionF) return false;
+    const subs=getStudentSubjects(st.stream,st);
+    return subs.includes(sub);
+  });
+
+  if(!students.length){
+    tbl.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)">এই subject-এ কোনো student পাওয়া যায়নি।</div>';
+    return;
+  }
+
+  // Sort by roll
+  students=[...students].sort((a,b)=>{
+    const ra=a.roll||'', rb=b.roll||'';
+    return ra.localeCompare(rb,undefined,{numeric:true});
+  });
+
+  let html=`
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+      <div class="sbox sn" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${students.length}</div>
+        <div class="slbl">মোট Students</div>
+      </div>
+      <div class="sbox sg" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${students.filter(s=>s.stream==='Science').length}</div>
+        <div class="slbl">Science</div>
+      </div>
+      <div class="sbox so" style="padding:10px 16px;flex:1;min-width:100px">
+        <div class="snum" style="font-size:22px">${students.filter(s=>s.stream==='Arts').length}</div>
+        <div class="slbl">Arts</div>
+      </div>
+    </div>
+    <div style="overflow:auto">
+    <table class="rtable" style="width:100%">
+    <thead><tr>
+      <th style="text-align:center;width:40px">Sl.</th>
+      <th style="text-align:left">Roll No</th>
+      <th style="text-align:left">Student Name</th>
+      <th>Stream</th>
+      <th>Section</th>
+      <th style="text-align:left">Father's Name</th>
+    </tr></thead>
+    <tbody>`;
+
+  students.forEach((st,idx)=>{
+    html+=`<tr>
+      <td style="text-align:center;color:var(--text3);font-size:12px">${idx+1}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold2);font-weight:700">${st.roll||'—'}</td>
+      <td style="font-weight:700">${st.name||'—'}</td>
+      <td style="font-size:11px;color:var(--text3)">${st.stream||'—'}</td>
+      <td style="text-align:center;font-size:12px">${st.section||'—'}</td>
+      <td style="font-size:12px;color:var(--text2)">${st.fatherName||'—'}</td>
+    </tr>`;
+  });
+
+  html+='</tbody></table></div>';
+  tbl.innerHTML=html;
+}
+
+function printSubjectList(){
+  const gi=parseInt(document.getElementById('listSubject')?.value);
+  const sub=S.subjects[gi];
+  if(!sub||isNaN(gi)){notif('Subject select করুন।','err');return;}
+  renderSubjectList();
+  const sch=S.school;
+  const teacher=(document.getElementById('listTeacher')?.value||'').trim();
+  const streamF=document.getElementById('listStream')?.value||'';
+  const sectionF=document.getElementById('listSection')?.value||'';
+  const subTitle=`${sub.name} (${sub.stream==='Both'?'All Streams':sub.stream})`
+    +(streamF?' — '+streamF:'')+(sectionF?' — Section '+sectionF:'');
+  const html=document.getElementById('subjectListTable').innerHTML;
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>${sub.name} — Student List</title>
+<style>
+  body{font-family:Arial,sans-serif;font-size:12px;margin:20px;color:#111}
+  h2{text-align:center;margin:4px 0;font-size:16px}
+  h3{text-align:center;margin:4px 0;font-size:13px;font-weight:normal}
+  .meta{text-align:center;font-size:11px;color:#555;margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;margin-top:10px}
+  th{background:#1a1a2e;color:#fff;padding:7px 10px;font-size:11px;text-align:left}
+  td{padding:6px 10px;border-bottom:1px solid #ddd;font-size:12px}
+  tr:nth-child(even) td{background:#f9f9f9}
+  .footer{text-align:right;margin-top:14px;font-size:11px;color:#666;border-top:1px solid #ccc;padding-top:6px}
+  @media print{body{margin:10px}.footer{position:fixed;bottom:10px;right:10px}}
+</style></head><body>
+<h2>${sch.name||'Ramnagar High School'}</h2>
+<h3>WBCHSE Class XI — Subject-wise Student List</h3>
+<div class="meta">
+  <b>Subject:</b> ${subTitle} &nbsp;|&nbsp;
+  <b>মোট Students:</b> ${document.querySelectorAll('#subjectListTable tbody tr').length}
+  ${teacher?'&nbsp;|&nbsp;<b>Subject Teacher:</b> '+teacher:''}
+</div>
+${html}
+<div class="footer">Printed: ${new Date().toLocaleDateString('en-IN')}</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(()=>{win.print();},400);
+}
+
 function initSubjectSort(){
   const sel=document.getElementById('sortSubject');
   if(!sel) return;
