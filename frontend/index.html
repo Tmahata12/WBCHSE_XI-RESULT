@@ -3735,6 +3735,29 @@ function renderSubjectList(){
     return;
   }
 
+  // Compute overall rank (best of 5) for stream scope
+  // Section-wise rank — rank computed within each section separately
+  const rankMap={};
+  const rankScope=S.students.filter(s=>(!streamF||s.stream===streamF));
+  // Group by section
+  const sectionGroups={};
+  rankScope.forEach(s=>{
+    const sec=s.section||'';
+    if(!sectionGroups[sec]) sectionGroups[sec]=[];
+    sectionGroups[sec].push(s);
+  });
+  // Rank within each section
+  Object.values(sectionGroups).forEach(grp=>{
+    const ranked=grp
+      .map(s=>({roll:s.roll,total:hasAllMarks(s)?computeStudent(s).bestTotal:null}))
+      .filter(s=>s.total!==null)
+      .sort((a,b)=>b.total-a.total);
+    ranked.forEach((s,idx,arr)=>{
+      const rank=arr.findIndex(x=>x.total===s.total)+1;
+      rankMap[s.roll]=rank;
+    });
+  });
+
   // Sort by roll number (numeric-aware)
   students=[...students].sort((a,b)=>{
     const ra=parseInt((a.roll||'').replace(/\D/g,''))||0;
@@ -3762,6 +3785,7 @@ function renderSubjectList(){
     <table class="rtable" style="width:100%">
     <thead><tr>
       <th style="text-align:center;width:40px">Sl.</th>
+      <th style="text-align:center;width:60px;border-left:2px solid var(--gold)">Sec.<br>Rank</th>
       <th style="text-align:left">Roll No</th>
       <th style="text-align:left">Student Name</th>
       <th>Stream</th>
@@ -3771,8 +3795,12 @@ function renderSubjectList(){
     <tbody>`;
 
   students.forEach((st,idx)=>{
-    html+=`<tr>
+    const rank=rankMap[st.roll];
+    const rankDisp=rank?(rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank):'—';
+    const rankCls=rank===1?'rk1':rank===2?'rk2':rank===3?'rk3':'';
+    html+=`<tr class="${rankCls}">
       <td style="text-align:center;color:var(--text3);font-size:12px">${idx+1}</td>
+      <td style="text-align:center;font-family:'DM Mono',monospace;font-weight:700;color:var(--blue3);font-size:13px;border-left:2px solid var(--gold)">${rankDisp}</td>
       <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--gold2);font-weight:700">${st.roll||'—'}</td>
       <td style="font-weight:700">${st.name||'—'}</td>
       <td style="font-size:11px;color:var(--text3)">${st.stream||'—'}</td>
